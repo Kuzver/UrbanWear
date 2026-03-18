@@ -6,7 +6,7 @@
 <body>
     <h1>{{ product.name }}</h1>
     <p>Цена: {{ product.price|floatformat:2 }} ₽</p>
-    <p>Добавлено: {{ product.created_at|date:"d.m.Y H:i" }}</p>
-    <p>Средний рейтинг: {{ avg_rating|default:"Нет оценок"|floatformat:1 }}</p>
+    <a href="{% url 'product_update' product.slug %}">Редактировать</a>
+    <a href="{% url 'product_delete' product.slug %}">Удалить</a>
 </body>
 </html>

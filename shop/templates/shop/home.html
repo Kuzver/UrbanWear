@@ -1,0 +1,10 @@
+<h2>Новинки</h2>
+<ul>
+    {% for product in latest_products %}
+        <li>{{ product.name }} ({{ product.price }} руб.)</li>
+    {% empty %}
+        <li>Пока нет товаров</li>
+    {% endfor %}
+    <p>Товаров в категории "Hoodies": {{ hoodies_count }}</p>
+<p>Дорогие товары (>10000): {% if expensive_exists %} есть {% else %} нет {% endif %}</p>
+</ul>

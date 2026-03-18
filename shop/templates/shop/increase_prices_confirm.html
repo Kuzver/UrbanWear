@@ -1,0 +1,6 @@
+<form method="post">
+    {% csrf_token %}
+    <p>Вы уверены, что хотите повысить цены всех товаров на 10%?</p>
+    <button type="submit">Да, повысить</button>
+    <a href="{% url 'product_list' %}">Отмена</a>
+</form>

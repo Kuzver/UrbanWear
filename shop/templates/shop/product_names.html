@@ -1,0 +1,13 @@
+<h2>Список названий (values_list)</h2>
+<ul>
+    {% for name in names %}
+        <li>{{ name }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Список словарей (values)</h2>
+<ul>
+    {% for item in data %}
+        <li>{{ item.name }} – {{ item.price }} руб.</li>
+    {% endfor %}
+</ul>
