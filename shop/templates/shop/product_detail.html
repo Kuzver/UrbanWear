@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ product.name }}</title>
+</head>
+<body>
+    <h1>{{ product.name }}</h1>
+    <p>Цена: {{ product.price|floatformat:2 }} ₽</p>
+    <p>Добавлено: {{ product.created_at|date:"d.m.Y H:i" }}</p>
+    <p>Средний рейтинг: {{ avg_rating|default:"Нет оценок"|floatformat:1 }}</p>
+</body>
+</html>

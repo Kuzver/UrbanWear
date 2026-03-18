@@ -1,0 +1,8 @@
+{% load shop_tags %}
+<h3>Популярные товары</h3>
+{% popular_products as popular %}
+<ul>
+    {% for product in popular %}
+        <li>{{ product.name }}</li>
+    {% endfor %}
+</ul>
