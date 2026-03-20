@@ -64,10 +64,8 @@ class ProductForm(forms.ModelForm):
         }
         js = ('js/product_form.js',)
 
-from django import forms
-
-class ProductImageUploadForm(forms.Form):
-    images = forms.ImageField(
-        widget=forms.FileInput(attrs={'multiple': True}),
-        label='Выберите изображения'
-    )
+# class ProductImageUploadForm(forms.Form):
+#     images = forms.FileField(
+#         widget=forms.ClearableFileInput(attrs={'multiple': True}),
+#         label='Выберите изображения'
+#     )

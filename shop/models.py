@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.conf import settings
-from rest_framework.authtoken.admin import User
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -28,6 +28,26 @@ class Product(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, blank=True)  # blank=True разрешает пустое значение в формах
+    instruction = models.FileField(
+        upload_to='product_instructions/',
+        blank=True,
+        null=True,
+        verbose_name='Инструкция (PDF)'
+    )
+    video_url = models.URLField(
+        blank=True,
+        verbose_name='Ссылка на видеообзор'
+    )
+    documentation = models.FileField(
+        upload_to='product_docs/',
+        blank=True,
+        null=True,
+        verbose_name='Документация'
+    )
+    video_url = models.URLField(
+        blank=True,
+        verbose_name='Ссылка на видео'
+    )
     def __str__(self):
         return f"{self.name} ({self.sku})"
 
@@ -107,5 +127,12 @@ class Wishlist(models.Model):
         unique_together = ('user', 'product')  # чтобы один товар можно было добавить в избранное только один раз
 
 
-class Review:
-    pass
+class Review(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.product.name} by {self.user.username}"

@@ -5,4 +5,9 @@
     {% for product in popular %}
         <li>{{ product.name }}</li>
     {% endfor %}
+    {% if product.documentation %}
+    <a href="{{ product.documentation.url }}">Скачать документацию</a>
+{% endif %}
+    {% load i18n %}
+<h1>{% trans "Hello" %}</h1>
 </ul>

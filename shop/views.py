@@ -1,10 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.cache import cache_page
+
 from .models import Product, Order, ProductImage
 from django.shortcuts import get_object_or_404, render
 from django.shortcuts import render
 from .models import Product
+from .forms import ProductImageUploadForm
 
 def home(request):
     latest_products = Product.objects.order_by('-created_at')[:5]
@@ -17,6 +20,7 @@ def home(request):
         'hoodies_count': hoodies_count,
         'expensive_exists': expensive_exists,
     })
+@cache_page(60 * 15)  # 15 минут
 def product_list(request):
     product_list = Product.objects.all()
     paginator = Paginator(product_list, 10)  # 10 товаров на странице
@@ -189,3 +193,12 @@ def upload_product_images(request, slug):
     else:
         form = ProductImageUploadForm()
     return render(request, 'shop/upload_images.html', {'form': form, 'product': product})
+
+from django.core.cache import cache
+
+def get_cached_data():
+    data = cache.get('my_key')
+    if not data:
+        data = some_expensive_operation()
+        cache.set('my_key', data, 60*5)
+    return data
