@@ -14,4 +14,6 @@ urlpatterns = [
     path('', views.home, name='home'),  # если главная страница
     path('increase-prices/', views.increase_prices, name='increase_prices'),
     path('product/<slug:slug>/upload-images/', views.upload_product_images, name='upload_images'),
+    path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
+    path('cart/', views.cart_detail, name='cart_detail'),
 ]

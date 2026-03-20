@@ -1,3 +1,4 @@
+
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -91,7 +92,7 @@ def product_update(request, slug):
             return redirect('product_detail', slug=product.slug)
     else:
         form = ProductForm(instance=product)
-    return render(request, 'shop/product_form.html', {'form': form, 'title': 'Редактирование товара'})
+    return redirect('product_detail', slug=product.slug)
 
 @staff_member_required
 def product_delete(request, slug):
@@ -101,7 +102,7 @@ def product_delete(request, slug):
         product.delete()
         messages.success(request, 'Товар удалён.')
         return redirect('product_list')
-    return render(request, 'shop/product_confirm_delete.html', {'product': product})
+    return redirect('product_list')
 
 def order_detail(request, order_id):
     # Оптимизация: загружаем связанного пользователя (ForeignKey) через JOIN
@@ -202,3 +203,21 @@ def get_cached_data():
         data = some_expensive_operation()
         cache.set('my_key', data, 60*5)
     return data
+
+def cart_add(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart = request.session.get('cart', {})
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+    request.session['cart'] = cart
+    return redirect('cart_detail')
+
+def cart_detail(request):
+    cart = request.session.get('cart', {})
+    products = Product.objects.filter(id__in=cart.keys())
+    items = []
+    for product in products:
+        items.append({
+            'product': product,
+            'quantity': cart[str(product.id)],
+        })
+    return render(request, 'shop/cart.html', {'items': items})

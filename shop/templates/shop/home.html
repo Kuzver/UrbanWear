@@ -6,5 +6,6 @@
         <li>Пока нет товаров</li>
     {% endfor %}
     <p>Товаров в категории "Hoodies": {{ hoodies_count }}</p>
+    <p>Цена: {{ product.get_discounted_price|floatformat:2 }} руб.</p>
 <p>Дорогие товары (>10000): {% if expensive_exists %} есть {% else %} нет {% endif %}</p>
 </ul>
