@@ -64,8 +64,8 @@ class ProductForm(forms.ModelForm):
         }
         js = ('js/product_form.js',)
 
-# class ProductImageUploadForm(forms.Form):
-#     images = forms.FileField(
-#         widget=forms.ClearableFileInput(attrs={'multiple': True}),
-#         label='Выберите изображения'
-#     )
+class ProductImageUploadForm(forms.Form):
+    images = forms.FileField(
+        label='Выберите изображение',
+        required=False
+    )
