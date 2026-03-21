@@ -200,7 +200,7 @@ from django.core.cache import cache
 def get_cached_data():
     data = cache.get('my_key')
     if not data:
-        data = some_expensive_operation()
+        data = increase_prices()
         cache.set('my_key', data, 60*5)
     return data
 
