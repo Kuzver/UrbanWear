@@ -23,16 +23,22 @@ def home(request):
     })
 @cache_page(60 * 15)  # 15 минут
 def product_list(request):
-    product_list = Product.objects.all()
-    paginator = Paginator(product_list, 10)  # 10 товаров на странице
-    page = request.GET.get('page')
-    try:
-        products = paginator.page(page)
-    except PageNotAnInteger:
-        products = paginator.page(1)
-    except EmptyPage:
-        products = paginator.page(paginator.num_pages)
-    return render(request, 'shop/product_list.html', {'page_obj': products})
+    products = Product.objects.all()
+
+    # фильтрация по категории
+    category = request.GET.get('category')
+    if category:
+        products = products.filter(category__slug=category)
+
+    # исключение (пример)
+    products = products.exclude(price=0)
+
+    # сортировка
+    products = products.order_by('-created_at')
+
+    return render(request, 'shop/product_list.html', {
+        'products': products
+    })
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
