@@ -207,6 +207,13 @@ def increase_prices(request):
 def product_detail(request, slug):
     try:
         product = Product.objects.get(slug=slug)
+        viewed_products = request.session.get('viewed_products', [])
+
+        if product.id not in viewed_products:
+            viewed_products.append(product.id)
+
+        request.session['viewed_products'] = viewed_products
+        request.session['last_viewed_product'] = product.name
     except Product.DoesNotExist:
         raise Http404("Товар не найден")
     return render(request, 'shop/product_detail.html', {'product': product})
