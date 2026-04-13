@@ -1,0 +1,31 @@
+{% load static %}
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="{% url 'home' %}" class="logo">UrbanWear</a>
+
+        <form class="header-search" method="get" action="{% url 'product_list' %}">
+            <input type="text" name="q" placeholder="поиск">
+            <button type="submit">⌕</button>
+        </form>
+
+        <nav class="header-icons">
+            <a href="#">📍</a>
+            <a href="#">👤</a>
+            <a href="#">🛒</a>
+        </nav>
+    </div>
+
+    <div class="container header-menu">
+        <button class="catalog-toggle" type="button">☰ Каталог</button>
+        <div class="catalog-dropdown">
+            <a href="{% url 'product_list' %}?category=women">Женщинам</a>
+            <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
+            <a href="{% url 'product_list' %}?category=look">Образы</a>
+            <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
+            <a href="{% url 'product_list' %}?category=season">Сезоны</a>
+            <a href="{% url 'product_list' %}?category=accessories">Головные уборы</a>
+            <a href="{% url 'product_list' %}?discount=1">Скидки</a>
+            <a href="{% url 'product_list' %}?popular=1">Популярное</a>
+        </div>
+    </div>
+</header>

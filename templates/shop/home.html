@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}UrbanWear{% endblock %}
+
+{% block content %}
+<section class="home-section container">
+    <div class="promo-grid">
+        <a href="{% url 'product_list' %}" class="promo-card">
+            <div class="promo-label">Скидки на</div>
+            <div class="promo-image-wrap">
+                <img src="{% static 'img/promo-summer.jpg' %}" alt="Лето">
+            </div>
+            <div class="promo-title">Лето</div>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="promo-card">
+            <div class="promo-label">Скидки на</div>
+            <div class="promo-image-wrap">
+                <img src="{% static 'img/promo-winter.jpg' %}" alt="Зиму">
+            </div>
+            <div class="promo-title">Зиму</div>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="promo-card">
+            <div class="promo-label">Скидки на</div>
+            <div class="promo-image-wrap">
+                <img src="{% static 'img/promo-shoes.jpg' %}" alt="Обувь">
+            </div>
+            <div class="promo-title">Обувь</div>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="promo-card">
+            <div class="promo-label">Скидки на</div>
+            <div class="promo-image-wrap">
+                <img src="{% static 'img/promo-hats.jpg' %}" alt="Головные уборы">
+            </div>
+            <div class="promo-title">Головные уборы</div>
+        </a>
+    </div>
+</section>
+
+<section class="home-section container">
+    <h2 class="section-title">Тренды этого сезона</h2>
+    <div class="trend-grid">
+        <a href="{% url 'product_list' %}" class="trend-card">
+            <img src="{% static 'img/trend-top.jpg' %}" alt="Верх">
+            <span>Верх</span>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="trend-card">
+            <img src="{% static 'img/trend-bottom.jpg' %}" alt="Низ">
+            <span>Низ</span>
+        </a>
+    </div>
+</section>
+
+<section class="home-section container style-section">
+    <h2 class="section-title">Комплекты в стиле</h2>
+    <div class="style-grid">
+        <a href="{% url 'product_list' %}" class="style-card">
+            <img src="{% static 'img/style-business.jpg' %}" alt="Деловой">
+            <span>Деловой</span>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="style-card">
+            <img src="{% static 'img/style-sport.jpg' %}" alt="Спортивный">
+            <span>Спортивный</span>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="style-card">
+            <img src="{% static 'img/style-casual.jpg' %}" alt="Кэжуал">
+            <span>Кэжуал</span>
+        </a>
+
+        <a href="{% url 'product_list' %}" class="style-card">
+            <img src="{% static 'img/style-urban.jpg' %}" alt="Уличный">
+            <span>Уличный</span>
+        </a>
+    </div>
+</section>
+{% endblock %}
