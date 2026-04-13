@@ -9,6 +9,23 @@ from django.shortcuts import get_object_or_404, render
 from django.shortcuts import render
 from .models import Product
 from .forms import ProductImageUploadForm
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Product
+from .forms import ProductForm, ReviewForm
+from django.db.models import Q
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import F
+from django.contrib import messages
+from django.http import Http404, HttpResponseRedirect
+from .forms import ProductImageUploadForm
+from .models import ProductImage
+from django.core.cache import cache
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def home(request):
     latest_products = Product.objects.order_by('-created_at')[:5]
@@ -22,19 +39,20 @@ def home(request):
         'hoodies_count': hoodies_count,
         'expensive_exists': expensive_exists,
     })
+
 @cache_page(60 * 15)  # 15 минут
 def product_list(request):
-    products = Product.objects.all()
-    # исключаем товары без цены
-    products = products.exclude(price=0)
+    products = Product.objects.all().exclude(price=0)
 
-    # фильтрация по категории
-    category = request.GET.get('category')
-    if category:
-        products = products.filter(category__slug=category)
+    paginator = Paginator(products, 6)  # 6 товаров на страницу
+    page = request.GET.get('page')
 
-    # сортировка
-    products = products.order_by('-created_at')
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
 
     return render(request, 'shop/product_list.html', {
         'products': products
@@ -48,10 +66,6 @@ def product_detail(request, slug):
         'avg_rating': avg_rating
     })
 
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-from django.shortcuts import render, redirect
-
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -62,13 +76,6 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
-
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product
-from .forms import ProductForm, ReviewForm
-
 
 @staff_member_required
 def product_create(request):
@@ -104,6 +111,7 @@ def product_update(request, slug):
         'title': 'Редактирование товара',
         'product': product
     })
+
 @staff_member_required
 def product_delete(request, slug):
     """Удаление товара"""
@@ -122,8 +130,6 @@ def order_detail(request, order_id):
         id=order_id
     )
     return render(request, 'shop/order_detail.html', {'order': order})
-
-from django.db.models import Q
 
 def product_search(request):
     query = request.GET.get('q')
@@ -179,10 +185,6 @@ def product_names(request):
     # Для примера передадим оба в шаблон
     return render(request, 'shop/product_names.html', {'names': names, 'data': data})
 
-from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import F
-from django.contrib import messages
-
 @staff_member_required
 def increase_prices(request):
     if request.method == 'POST':
@@ -192,18 +194,12 @@ def increase_prices(request):
         return redirect('product_list')
     return render(request, 'shop/increase_prices_confirm.html')
 
-from django.http import Http404, HttpResponseRedirect
-
-
 def product_detail(request, slug):
     try:
         product = Product.objects.get(slug=slug)
     except Product.DoesNotExist:
         raise Http404("Товар не найден")
     return render(request, 'shop/product_detail.html', {'product': product})
-
-from .forms import ProductImageUploadForm
-from .models import ProductImage
 
 @staff_member_required
 def upload_product_images(request, slug):
@@ -218,8 +214,6 @@ def upload_product_images(request, slug):
     else:
         form = ProductImageUploadForm()
     return render(request, 'shop/upload_images.html', {'form': form, 'product': product})
-
-from django.core.cache import cache
 
 def get_cached_data():
     data = cache.get('my_key')

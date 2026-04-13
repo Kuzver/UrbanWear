@@ -329,3 +329,39 @@ a {
         font-size: 24px;
     }
 }
+
+.catalog-page {
+    display: flex;
+    gap: 30px;
+    padding: 20px;
+}
+
+.catalog-sidebar {
+    width: 200px;
+}
+
+.catalog-content {
+    flex: 1;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.product-card {
+    border: 1px solid #eee;
+    padding: 10px;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.product-card:hover {
+    transform: scale(1.03);
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+}
