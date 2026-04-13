@@ -87,18 +87,22 @@ def product_create(request):
 
 @staff_member_required
 def product_update(request, slug):
-    """Редактирование существующего товара"""
     product = get_object_or_404(Product, slug=slug)
+
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Товар успешно обновлён.')
+            product = form.save(commit=True)
+            messages.success(request, f'Товар "{product.name}" успешно обновлён.')
             return redirect('product_detail', slug=product.slug)
     else:
         form = ProductForm(instance=product)
-    return redirect('product_detail', slug=product.slug)
 
+    return render(request, 'shop/product_form.html', {
+        'form': form,
+        'title': 'Редактирование товара',
+        'product': product
+    })
 @staff_member_required
 def product_delete(request, slug):
     """Удаление товара"""
