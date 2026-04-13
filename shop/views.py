@@ -24,6 +24,8 @@ def home(request):
 @cache_page(60 * 15)  # 15 минут
 def product_list(request):
     products = Product.objects.all()
+    # исключаем товары без цены
+    products = products.exclude(price=0)
 
     # фильтрация по категории
     category = request.GET.get('category')
