@@ -9,7 +9,36 @@ from .models import (
     Category, Brand, Product, ProductImage, Size, ProductVariant,
     Order, OrderItem, Wishlist, Review, PromoCode
 )
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
 
+def export_order_pdf(modeladmin, request, queryset):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="orders.pdf"'
+
+    p = canvas.Canvas(response)
+    y = 800
+
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(100, y, "Список заказов")
+    y -= 30
+
+    p.setFont("Helvetica", 11)
+
+    for order in queryset:
+        p.drawString(100, y, f"Заказ #{order.id} | Пользователь: {order.user} | Сумма: {order.total_amount}")
+        y -= 20
+
+        if y < 50:
+            p.showPage()
+            y = 800
+            p.setFont("Helvetica", 11)
+
+    p.showPage()
+    p.save()
+    return response
+
+export_order_pdf.short_description = "Экспортировать выбранные заказы в PDF"
 
 # ---------- Category ----------
 @admin.register(Category)
@@ -115,7 +144,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('delivery_address', 'city', 'postal_code', 'contact_phone')
         }),
     )
-    actions = ['mark_as_shipped', 'mark_as_delivered']
+    actions = ['mark_as_shipped', 'mark_as_delivered', 'export_order_pdf']
 
     @admin.action(description='Отметить как отправленные')
     def mark_as_shipped(self, request, queryset):
