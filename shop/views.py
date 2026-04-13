@@ -26,6 +26,7 @@ from .forms import ProductImageUploadForm
 from .models import ProductImage
 from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Avg, Max, Min
 
 def home(request):
     latest_products = Product.objects.order_by('-created_at')[:5]
@@ -33,6 +34,12 @@ def home(request):
     hoodies_count = Product.objects.filter(category__name='Hoodies').count()
     # Есть ли дорогие товары (>10000)
     expensive_exists = Product.objects.filter(price__gt=10000).exists()
+
+    stats = Product.objects.aggregate(
+        avg_price=Avg('price'),
+        max_price=Max('price'),
+        min_price=Min('price')
+    )
 
     return render(request, 'shop/home.html', {
         'latest_products': latest_products,
@@ -59,7 +66,10 @@ def product_list(request):
     })
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product, slug=slug)
+    product = get_object_or_404(
+        Product.objects.select_related('category', 'brand').prefetch_related('images', 'variants', 'reviews'),
+        slug=slug
+    )
     avg_rating = product.reviews.aggregate(Avg('rating'))['rating__avg']
     return render(request, 'shop/product_detail.html', {
         'product': product,
