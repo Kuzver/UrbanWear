@@ -32,9 +32,6 @@ def product_list(request):
     if category:
         products = products.filter(category__slug=category)
 
-    # исключение (пример)
-    products = products.exclude(price=0)
-
     # сортировка
     products = products.order_by('-created_at')
 
@@ -121,12 +118,20 @@ def order_detail(request, order_id):
     )
     return render(request, 'shop/order_detail.html', {'order': order})
 
+from django.db.models import Q
+
 def product_search(request):
-    query = request.GET.get('q', '')
-    # Поиск в названии и описании (без учёта регистра)
-    products = Product.objects.filter(name__icontains=query) | \
-               Product.objects.filter(description__icontains=query)
-    return render(request, 'shop/search_results.html', {'products': products, 'query': query})
+    query = request.GET.get('q')
+    products = Product.objects.all()
+
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(name__contains=query)
+        )
+
+    return render(request, 'shop/product_list.html', {'products': products})
 
 @login_required
 def add_review(request, product_slug):
