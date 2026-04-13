@@ -10,7 +10,14 @@ def current_time(format_string='%d.%m.%Y %H:%M'):
 
 @register.simple_tag(takes_context=True)
 def cart_total_items(context):
-    # Заглушка – позже замените на реальную логику корзины
+    request = context.get('request')
+    if not request:
+        return 0
+
+    cart = request.session.get('cart', {})
+    if isinstance(cart, dict):
+        return sum(item.get('quantity', 0) for item in cart.values())
+
     return 0
 
 @register.simple_tag
