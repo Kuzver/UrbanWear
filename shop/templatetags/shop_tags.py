@@ -17,3 +17,15 @@ def cart_total_items(context):
 def popular_products(limit=5):
     # Пока возвращаем пустой QuerySet, чтобы избежать других ошибок
     return Product.objects.none()
+
+@register.filter
+def multiply(value, arg):
+    try:
+        return float(value) * float(arg)
+    except (TypeError, ValueError):
+        return ''
+
+
+@register.filter
+def ru_yesno(value):
+    return 'Да' if value else 'Нет'

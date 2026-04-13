@@ -80,7 +80,7 @@ def product_create(request):
             product.name = f"(NEW) {product.name}"
             product.save()  # Теперь сохраняем
             messages.success(request, f'Товар "{product.name}" успешно создан.')
-            return redirect('product_detail', slug=product.slug)
+            return HttpResponseRedirect(product.get_absolute_url())
     else:
         form = ProductForm()
     return render(request, 'shop/product_form.html', {'form': form, 'title': 'Создание товара'})
@@ -139,11 +139,16 @@ def add_review(request, product_slug):
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
-            # Создаём отзыв, но не сохраняем в БД
+            text = form.cleaned_data.get('text')
+            rating = form.cleaned_data.get('rating')
+
             review = form.save(commit=False)
             review.user = request.user
             review.product = product
+            review.text = text
+            review.rating = rating
             review.save()
+
             messages.success(request, 'Спасибо за ваш отзыв!')
             return redirect('product_detail', slug=product.slug)
     else:
@@ -182,7 +187,8 @@ def increase_prices(request):
         return redirect('product_list')
     return render(request, 'shop/increase_prices_confirm.html')
 
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
+
 
 def product_detail(request, slug):
     try:
