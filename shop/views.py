@@ -16,6 +16,7 @@ def home(request):
     hoodies_count = Product.objects.filter(category__name='Hoodies').count()
     # Есть ли дорогие товары (>10000)
     expensive_exists = Product.objects.filter(price__gt=10000).exists()
+
     return render(request, 'shop/home.html', {
         'latest_products': latest_products,
         'hoodies_count': hoodies_count,

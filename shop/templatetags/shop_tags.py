@@ -15,8 +15,7 @@ def cart_total_items(context):
 
 @register.simple_tag
 def popular_products(limit=5):
-    # Пока возвращаем пустой QuerySet, чтобы избежать других ошибок
-    return Product.objects.none()
+    return Product.objects.order_by('-created_at')[:limit]
 
 @register.filter
 def multiply(value, arg):

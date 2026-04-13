@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+from . import models
 from .models import (
     Category, Brand, Product, ProductImage, Size, ProductVariant,
     Order, OrderItem, Wishlist, Review, PromoCode
@@ -62,6 +64,7 @@ class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'updated_at', 'discounted_price']
     date_hierarchy = 'created_at'
     raw_id_fields = ['category', 'brand']
+    filter_horizontal = ['recommended_products']
     inlines = [ProductImageInline, ProductVariantInline]
     fieldsets = (
         ('Основное', {
