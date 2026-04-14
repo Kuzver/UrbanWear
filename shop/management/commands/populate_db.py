@@ -27,7 +27,13 @@ class Command(BaseCommand):
     def create_brands(self):
         for _ in range(5):
             name = fake.company()
-            slug = fake.unique.slug()
+            base_slug = slugify(name)
+            slug = base_slug
+            counter = 1
+
+            while Brand.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
 
             Brand.objects.create(
                 name=name,
