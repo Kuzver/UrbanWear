@@ -49,7 +49,7 @@ def home(request):
 
 @cache_page(60 * 15)  # 15 минут
 def product_list(request):
-    products = Product.objects.all().exclude(price=0)
+    products = Product.objects.select_related('category', 'brand').all().exclude(price=0)
 
     paginator = Paginator(products, 6)  # 6 товаров на страницу
     page = request.GET.get('page')
@@ -63,17 +63,6 @@ def product_list(request):
 
     return render(request, 'shop/product_list.html', {
         'products': products
-    })
-
-def product_detail(request, slug):
-    product = get_object_or_404(
-        Product.objects.select_related('category', 'brand').prefetch_related('images', 'variants', 'reviews'),
-        slug=slug
-    )
-    avg_rating = product.reviews.aggregate(Avg('rating'))['rating__avg']
-    return render(request, 'shop/product_detail.html', {
-        'product': product,
-        'avg_rating': avg_rating
     })
 
 def register(request):

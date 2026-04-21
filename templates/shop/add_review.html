@@ -8,8 +8,8 @@
             {{ field.errors }}
             {{ field.label_tag }}
             {{ field }}
-            {% if field.help_text %}
-                <p class="help">{{ field.help_text }}</p>
+            {% if field.help_texts %}
+                <p class="help">{{ field.help_texts }}</p>
             {% endif %}
         </div>
     {% endfor %}

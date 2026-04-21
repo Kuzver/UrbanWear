@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина | UrbanWear{% endblock %}
+
+{% block content %}
+<section class="cart-page">
+    <div class="container cart-layout">
+        <div class="cart-items">
+            {% for item in items %}
+                <div class="cart-item-card">
+                    <div class="cart-item-image">
+                        {% if item.product.main_image %}
+                            <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                        {% endif %}
+                    </div>
+
+                    <div class="cart-item-info">
+                        <h3>{{ item.product.name }}</h3>
+                        <p>товаров {{ item.quantity }}</p>
+                        <p>{{ item.product.price }} РУБ</p>
+                    </div>
+
+                    <div class="cart-item-controls">
+                        <button>-</button>
+                        <span>{{ item.quantity }}</span>
+                        <button>+</button>
+                    </div>
+
+                    <div class="cart-item-icons">
+                        <a href="#">🗑</a>
+                        <a href="#">➤</a>
+                        <a href="#">♡</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Корзина пуста.</p>
+            {% endfor %}
+        </div>
+
+        <aside class="cart-summary">
+            <h3>ВЫБРАТЬ АДРЕС ДОСТАВКИ</h3>
+            <div class="summary-row">
+                <span>товаров</span>
+                <span>{{ items|length }} шт</span>
+            </div>
+            <div class="summary-row">
+                <span>моя скидка</span>
+                <span>100%</span>
+            </div>
+            <div class="summary-row total">
+                <span>ИТОГО</span>
+                <span>10000000 РУБ</span>
+            </div>
+            <button class="summary-btn">ЗАКАЗАТЬ</button>
+        </aside>
+    </div>
+</section>
+{% endblock %}

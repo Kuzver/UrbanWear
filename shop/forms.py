@@ -8,14 +8,14 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['rating', 'comment']
         widgets = {
-            'comment': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Ваш отзыв...'}),
+            'comment': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Ваш отзыв..----.'}),
         }
         labels = {
             'rating': 'Оценка',
             'comment': 'Комментарий',
         }
         help_texts = {
-            'rating': 'Поставьте оценку от 1 до 5',
+            'rating': 'Поставьте оценку от 1 до 5 ----',
         }
         error_messages = {
             'rating': {
@@ -34,10 +34,10 @@ class ProductForm(forms.ModelForm):
         }
         labels = {
             'name': 'Название товара',
-            'price': 'Цена (руб)',
+            'price': 'Цена (р ------уб)',
         }
         help_texts = {
-            'slug': 'Уникальный идентификатор для URL. Если не заполнить, сгенерируется автоматически.',
+            'slug': 'Уникальный идентификатор ----------- для URL. Если не заполнить, сгенерируется автоматически.',
         }
         error_messages = {
             'price': {
@@ -52,25 +52,6 @@ class ProductImageForm(forms.ModelForm):
     class Meta:
         model = ProductImage
         fields = ['image']
-
-class ProductForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-    def clean_price(self):
-        price = self.cleaned_data.get('price')
-
-        if price is not None and price < 0:
-            raise forms.ValidationError("Цена не может быть отрицательной")
-
-        return price
-
-    class Media:
-        css = {
-            'all': ('css/admin_custom.css',)
-        }
-        js = ('js/product_form.js',)
 
 class ProductImageUploadForm(forms.Form):
     images = forms.FileField(

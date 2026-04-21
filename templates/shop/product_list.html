@@ -1,50 +1,58 @@
 {% extends 'base.html' %}
-{% load static %}
+
+{% block title %}Каталог | UrbanWear{% endblock %}
 
 {% block content %}
+<section class="catalog-page">
+    <div class="container catalog-layout">
+        <aside class="catalog-sidebar">
+            <div class="filter-box">
+                <a href="#">по цене</a>
+                <a href="#">материал</a>
+                <a href="#">акции</a>
+                <a href="#">размер</a>
+                <a href="#">бренд</a>
+                <a href="#">образ</a>
+            </div>
+        </aside>
 
-<div class="catalog-page">
+        <div class="catalog-content">
+            <div class="product-grid">
+                {% for product in products %}
+                    <div class="product-card">
+                        <a href="{{ product.get_absolute_url }}" class="product-card-image">
+                            {% if product.main_image %}
+                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="no-image">Нет фото</div>
+                            {% endif %}
+                        </a>
+                        <div class="product-card-info">
+                            <h3>
+                                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                            </h3>
+                            <p class="price">{{ product.price }} РУБ</p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Товары пока не добавлены.</p>
+                {% endfor %}
+            </div>
 
-    <!-- ЛЕВАЯ ЧАСТЬ (фильтр) -->
-    <aside class="catalog-sidebar">
-        <h3>Фильтр</h3>
-        <p>Категории</p>
-        <p>Цена</p>
-        <p>Размер</p>
-    </aside>
+            {% if products.has_other_pages %}
+                <div class="pagination">
+                    {% if products.has_previous %}
+                        <a href="?page={{ products.previous_page_number }}">← Назад</a>
+                    {% endif %}
 
-    <!-- ПРАВАЯ ЧАСТЬ (товары) -->
-    <div class="catalog-content">
+                    <span>Страница {{ products.number }} из {{ products.paginator.num_pages }}</span>
 
-        <div class="product-grid">
-            {% for product in products %}
-                <div class="product-card">
-                    <a href="{{ product.get_absolute_url }}">
-                        {% if product.main_image %}
-                            <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-                        {% endif %}
-                        <h4>{{ product.name }}</h4>
-                        <p>{{ product.price }} ₽</p>
-                    </a>
+                    {% if products.has_next %}
+                        <a href="?page={{ products.next_page_number }}">Вперёд →</a>
+                    {% endif %}
                 </div>
-            {% endfor %}
-        </div>
-
-        <!-- ПАГИНАЦИЯ -->
-        <div class="pagination">
-            {% if products.has_previous %}
-                <a href="?page={{ products.previous_page_number }}">←</a>
-            {% endif %}
-
-            <span>{{ products.number }} / {{ products.paginator.num_pages }}</span>
-
-            {% if products.has_next %}
-                <a href="?page={{ products.next_page_number }}">→</a>
             {% endif %}
         </div>
-
     </div>
-
-</div>
-
+</section>
 {% endblock %}

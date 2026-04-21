@@ -3,7 +3,32 @@
 <h2>{{ title }}</h2>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <div>
+        {{ form.name.label_tag }}
+        {{ form.name }}
+    </div>
+
+    <div>
+        {{ form.description.label_tag }}
+        {{ form.description }}
+    </div>
+
+    <div>
+        {{ form.price.label_tag }}
+        {{ form.price }}
+    </div>
+    <div>
+    {{ form.slug.label_tag }}
+    {{ form.slug }}
+
+    {% if form.slug.help_text %}
+        <small style="color: gray;">
+            {{ form.slug.help_text }}
+        </small>
+    {% endif %}
+</div>
+
     <button type="submit">Сохранить</button>
 </form>
 {% endblock %}

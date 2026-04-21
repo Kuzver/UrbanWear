@@ -1,31 +1,36 @@
 {% load static %}
 <header class="site-header">
-    <div class="container header-inner">
-        <a href="{% url 'home' %}" class="logo">UrbanWear</a>
+    <div class="container header-top">
+        <a href="{% url 'home' %}" class="site-logo">UrbanWear</a>
 
-        <form class="header-search" method="get" action="{% url 'product_list' %}">
+        <form class="header-search" method="get" action="{% url 'product_search' %}">
             <input type="text" name="q" placeholder="поиск">
             <button type="submit">⌕</button>
         </form>
 
-        <nav class="header-icons">
-            <a href="#">📍</a>
-            <a href="#">👤</a>
-            <a href="#">🛒</a>
-        </nav>
+        <div class="header-icons">
+            <a href="#" class="icon-circle">⌖</a>
+            <a href="{% url 'login' %}" class="icon-circle">◉</a>
+            <a href="{% url 'cart' %}" class="icon-circle">🛒</a>
+        </div>
     </div>
 
-    <div class="container header-menu">
-        <button class="catalog-toggle" type="button">☰ Каталог</button>
-        <div class="catalog-dropdown">
-            <a href="{% url 'product_list' %}?category=women">Женщинам</a>
-            <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
-            <a href="{% url 'product_list' %}?category=look">Образы</a>
-            <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
-            <a href="{% url 'product_list' %}?category=season">Сезоны</a>
-            <a href="{% url 'product_list' %}?category=accessories">Головные уборы</a>
-            <a href="{% url 'product_list' %}?discount=1">Скидки</a>
-            <a href="{% url 'product_list' %}?popular=1">Популярное</a>
+    <div class="container header-bottom">
+        <div class="catalog-wrapper">
+            <button class="catalog-btn" type="button">☰ Каталог</button>
+
+            <div class="catalog-menu">
+                <div class="catalog-menu-grid">
+                    <a href="{% url 'product_list' %}?category=women">Женщинам</a>
+                    <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
+                    <a href="{% url 'product_list' %}?category=looks">Образы</a>
+                    <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
+                    <a href="{% url 'product_list' %}?category=seasons">Сезоны</a>
+                    <a href="{% url 'product_list' %}?category=hats">Головные уборы</a>
+                    <a href="{% url 'product_list' %}?discount=1">Скидки</a>
+                    <a href="{% url 'product_list' %}?popular=1">Популярное</a>
+                </div>
+            </div>
         </div>
     </div>
 </header>

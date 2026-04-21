@@ -1,88 +1,67 @@
 {% extends 'base.html' %}
-{% load static %}
 
-{% block title %}UrbanWear{% endblock %}
+{% block title %}Главная | UrbanWear{% endblock %}
 
 {% block content %}
-<section class="home-section container">
-    <div class="promo-grid">
-        <a href="{% url 'product_list' %}" class="promo-card">
-            <div class="promo-label">Скидки на</div>
-            <div class="promo-image-wrap">
-                <img src="{% static 'img/promo-summer.jpg' %}" alt="Лето">
+<section class="home-section">
+    <div class="container">
+        <div class="promo-grid four-cols">
+            <div class="promo-card promo-card-green">
+                <h3>СКИДКИ НА</h3>
+                <img src="/media/demo/summer.jpg" alt="">
+                <p>ЛЕТО</p>
             </div>
-            <div class="promo-title">Лето</div>
-        </a>
-
-        <a href="{% url 'product_list' %}" class="promo-card">
-            <div class="promo-label">Скидки на</div>
-            <div class="promo-image-wrap">
-                <img src="{% static 'img/promo-winter.jpg' %}" alt="Зиму">
+            <div class="promo-card promo-card-green">
+                <h3>СКИДКИ НА</h3>
+                <img src="/media/demo/winter.jpg" alt="">
+                <p>ЗИМУ</p>
             </div>
-            <div class="promo-title">Зиму</div>
-        </a>
-
-        <a href="{% url 'product_list' %}" class="promo-card">
-            <div class="promo-label">Скидки на</div>
-            <div class="promo-image-wrap">
-                <img src="{% static 'img/promo-shoes.jpg' %}" alt="Обувь">
+            <div class="promo-card promo-card-green">
+                <h3>СКИДКИ НА</h3>
+                <img src="/media/demo/shoes.jpg" alt="">
+                <p>ОБУВЬ</p>
             </div>
-            <div class="promo-title">Обувь</div>
-        </a>
-
-        <a href="{% url 'product_list' %}" class="promo-card">
-            <div class="promo-label">Скидки на</div>
-            <div class="promo-image-wrap">
-                <img src="{% static 'img/promo-hats.jpg' %}" alt="Головные уборы">
+            <div class="promo-card promo-card-green">
+                <h3>СКИДКИ НА</h3>
+                <img src="/media/demo/hats.jpg" alt="">
+                <p>ГОЛОВНЫЕ УБОРЫ</p>
             </div>
-            <div class="promo-title">Головные уборы</div>
-        </a>
-    </div>
-</section>
+        </div>
 
-<div class="stats">
-    <p>Средняя цена: {{ avg_price }}</p>
-    <p>Максимальная цена: {{ max_price }}</p>
-    <p>Минимальная цена: {{ min_price }}</p>
-</div>
+        <div class="promo-grid two-cols mt-40">
+            <div class="promo-card promo-card-coral large-card">
+                <h3>ТРЕНДЫ ЭТОГО СЕЗОНА</h3>
+                <img src="/media/demo/top.jpg" alt="">
+                <p>ВЕРХ</p>
+            </div>
+            <div class="promo-card promo-card-coral large-card">
+                <h3>ТРЕНДЫ ЭТОГО СЕЗОНА</h3>
+                <img src="/media/demo/bottom.jpg" alt="">
+                <p>НИЗ</p>
+            </div>
+        </div>
 
-<section class="home-section container">
-    <h2 class="section-title">Тренды этого сезона</h2>
-    <div class="trend-grid">
-        <a href="{% url 'product_list' %}" class="trend-card">
-            <img src="{% static 'img/trend-top.jpg' %}" alt="Верх">
-            <span>Верх</span>
-        </a>
-
-        <a href="{% url 'product_list' %}" class="trend-card">
-            <img src="{% static 'img/trend-bottom.jpg' %}" alt="Низ">
-            <span>Низ</span>
-        </a>
-    </div>
-</section>
-
-<section class="home-section container style-section">
-    <h2 class="section-title">Комплекты в стиле</h2>
-    <div class="style-grid">
-        <a href="{% url 'product_list' %}" class="style-card">
-            <img src="{% static 'img/style-business.jpg' %}" alt="Деловой">
-            <span>Деловой</span>
-        </a>
-
-        <a href="{% url 'product_list' %}" class="style-card">
-            <img src="{% static 'img/style-sport.jpg' %}" alt="Спортивный">
-            <span>Спортивный</span>
-        </a>
-
-        <a href="{% url 'product_list' %}" class="style-card">
-            <img src="{% static 'img/style-casual.jpg' %}" alt="Кэжуал">
-            <span>Кэжуал</span>
-        </a>
-
-        <a href="{% url 'product_list' %}" class="style-card">
-            <img src="{% static 'img/style-urban.jpg' %}" alt="Уличный">
-            <span>Уличный</span>
-        </a>
+        <div class="style-box mt-60">
+            <h3>КОМПЛЕКТЫ В СТИЛЕ</h3>
+            <div class="style-grid">
+                <div class="style-item">
+                    <img src="/media/demo/business.jpg" alt="">
+                    <p>ДЕЛОВОЙ</p>
+                </div>
+                <div class="style-item">
+                    <img src="/media/demo/sport.jpg" alt="">
+                    <p>СПОРТИВНЫЙ</p>
+                </div>
+                <div class="style-item">
+                    <img src="/media/demo/casual.jpg" alt="">
+                    <p>КЭЖУАЛ</p>
+                </div>
+                <div class="style-item">
+                    <img src="/media/demo/urban.jpg" alt="">
+                    <p>URBAN</p>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 {% endblock %}
