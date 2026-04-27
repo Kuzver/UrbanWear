@@ -23,4 +23,5 @@ urlpatterns = [
     path('cart/', views.cart_detail, name='cart'),
 
     path('search/', views.product_search, name='product_search'),
+    path('orders/<int:order_id>/pdf/', views.export_order_pdf_view, name='order_pdf'),
 ]

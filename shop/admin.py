@@ -38,8 +38,6 @@ def export_order_pdf(modeladmin, request, queryset):
     p.save()
     return response
 
-export_order_pdf.short_description = "Экспортировать выбранные заказы в PDF"
-
 # ---------- Category ----------
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -144,7 +142,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('delivery_address', 'city', 'postal_code', 'contact_phone')
         }),
     )
-    actions = ['mark_as_shipped', 'mark_as_delivered', 'export_order_pdf']
+    actions = ['mark_as_shipped', 'mark_as_delivered', 'export_order_pdf', 'mark_as', 'mark_delivered']
 
     @admin.action(description='Отметить как отправленные')
     def mark_as_shipped(self, request, queryset):
@@ -153,6 +151,14 @@ class OrderAdmin(admin.ModelAdmin):
     @admin.action(description='Отметить как доставленные')
     def mark_as_delivered(self, request, queryset):
         queryset.update(status='delivered')
+
+    @admin.action(description='Отметить как проданные')
+    def mark_as(self, request, queryset):
+        queryset.update(status='bought')
+
+    @admin.action(description='Отметить как измененные')
+    def mark_delivered(self, request, queryset):
+        queryset.update(status='updated')
 
 
 # ---------- Size ----------

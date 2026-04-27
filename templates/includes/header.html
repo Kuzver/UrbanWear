@@ -1,6 +1,6 @@
-{% load static %}
+{% load i18n %}
 <header class="site-header">
-    <div class="container header-top">
+    <div class="container header-row">
         <a href="{% url 'home' %}" class="site-logo">UrbanWear</a>
 
         <form class="header-search" method="get" action="{% url 'product_search' %}">
@@ -15,22 +15,15 @@
         </div>
     </div>
 
-    <div class="container header-bottom">
-        <div class="catalog-wrapper">
-            <button class="catalog-btn" type="button">☰ Каталог</button>
-
-            <div class="catalog-menu">
-                <div class="catalog-menu-grid">
-                    <a href="{% url 'product_list' %}?category=women">Женщинам</a>
-                    <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
-                    <a href="{% url 'product_list' %}?category=looks">Образы</a>
-                    <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
-                    <a href="{% url 'product_list' %}?category=seasons">Сезоны</a>
-                    <a href="{% url 'product_list' %}?category=hats">Головные уборы</a>
-                    <a href="{% url 'product_list' %}?discount=1">Скидки</a>
-                    <a href="{% url 'product_list' %}?popular=1">Популярное</a>
-                </div>
-            </div>
-        </div>
+    <div class="container header-nav-row">
+        <button class="burger-btn" type="button">☰</button>
+        <nav class="top-nav">
+            <a href="{% url 'product_list' %}?category=women">Женщинам</a>
+            <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
+            <a href="{% url 'product_list' %}?category=looks">Образы</a>
+            <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
+            <a href="{% url 'product_list' %}?category=accessories">Аксессуары</a>
+            <a href="{% url 'product_list' %}?discount=1">Акции</a>
+        </nav>
     </div>
 </header>

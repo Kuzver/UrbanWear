@@ -21,12 +21,26 @@ from django.db.models import Q
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import F
 from django.contrib import messages
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from .forms import ProductImageUploadForm
 from .models import ProductImage
 from django.core.cache import cache
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Avg, Max, Min
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from .models import Order
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import render
+from .models import Product
+
+def export_order_pdf_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="order_{order.id}.pdf"'
+    response.write(f'PDF для заказа {order.id}')
+    return response
 
 def home(request):
     latest_products = Product.objects.order_by('-created_at')[:5]
@@ -47,11 +61,43 @@ def home(request):
         'expensive_exists': expensive_exists,
     })
 
+def export_order_pdf_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="order_{order.id}.pdf"'
+
+    response.write(f"PDF для заказа {order.id}")
+    return response
+
 @cache_page(60 * 15)  # 15 минут
 def product_list(request):
-    products = Product.objects.select_related('category', 'brand').all().exclude(price=0)
+    products = Product.objects.all().exclude(price=0)
 
-    paginator = Paginator(products, 6)  # 6 товаров на страницу
+    category = request.GET.get('category')
+    discount = request.GET.get('discount')
+    q = request.GET.get('q')
+
+    if category == 'women':
+        products = products.filter(category__name__icontains='жен')
+    elif category == 'men':
+        products = products.filter(category__name__icontains='муж')
+    elif category == 'looks':
+        products = products.filter(category__name__icontains='образ')
+    elif category == 'shoes':
+        products = products.filter(category__name__icontains='обув')
+    elif category == 'accessories':
+        products = products.filter(category__name__icontains='аксесс')
+    elif category == 'season':
+        products = products.filter(category__name__icontains='сезон')
+
+    if discount:
+        products = products.filter(discount__gt=0)
+
+    if q:
+        products = products.filter(name__icontains=q)
+
+    paginator = Paginator(products, 9)
     page = request.GET.get('page')
 
     try:
@@ -62,7 +108,8 @@ def product_list(request):
         products = paginator.page(paginator.num_pages)
 
     return render(request, 'shop/product_list.html', {
-        'products': products
+        'products': products,
+        'current_category': category,
     })
 
 def register(request):

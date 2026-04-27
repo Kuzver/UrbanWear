@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -9,11 +9,9 @@
 </head>
 <body>
     {% include 'includes/header.html' %}
-
     <main class="site-main">
         {% block content %}{% endblock %}
     </main>
-
     {% include 'includes/footer.html' %}
 </body>
 </html>

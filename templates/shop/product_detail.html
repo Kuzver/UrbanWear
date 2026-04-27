@@ -1,88 +1,37 @@
 {% extends 'base.html' %}
-
-{% block title %}{{ product.name }} | UrbanWear{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<section class="product-page">
-    <div class="container product-layout">
-        <div class="product-gallery">
-            <div class="thumbs">
-                {% if product.images.all %}
-                    {% for image in product.images.all %}
-                        <div class="thumb">
-                            <img src="{{ image.image.url }}" alt="">
-                        </div>
-                    {% endfor %}
-                {% endif %}
+<section class="product-detail-page">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{% url 'home' %}">ГЛАВНАЯ</a>
+            <span>/</span>
+            <a href="{% url 'product_list' %}">ЖЕНЩИНАМ</a>
+            <span>/</span>
+            <a href="{% url 'product_list' %}">ОДЕЖДА</a>
+            <span>/</span>
+            <span>{{ product.name|upper }}</span>
+        </div>
+
+        <div class="detail-layout">
+            <div class="detail-thumbs">
+                {% for image in product.images.all|slice:':3' %}
+                    <div class="detail-thumb">
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                    </div>
+                {% empty %}
+                    <div class="detail-thumb empty-image">NO IMAGE</div>
+                {% endfor %}
             </div>
 
-            <div class="main-photo">
+            <div class="detail-main-image">
                 {% if product.main_image %}
                     <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
                 {% else %}
-                    <div class="no-image large">Нет фото</div>
+                    <div class="empty-image big-empty">NO IMAGE</div>
                 {% endif %}
             </div>
-        </div>
 
-        <div class="product-info-panel">
-            <div class="product-title-box">
-                <h1>{{ product.name }}</h1>
-            </div>
-
-            <div class="product-mini-gallery">
-                {% for image in product.images.all|slice:":3" %}
-                    <img src="{{ image.image.url }}" alt="">
-                {% endfor %}
-            </div>
-
-            <div class="product-meta-row">
-                <div class="meta-box">
-                    <span>Размер</span>
-                    <div class="meta-value">48-50 L</div>
-                </div>
-                <div class="meta-box">
-                    <span>ЦЕНА С УЧЕТОМ СКИДКИ</span>
-                    <div class="meta-value">{{ product.price }} РУБ</div>
-                </div>
-            </div>
-
-            <div class="product-description-box">
-                <p>{{ product.description }}</p>
-            </div>
-
-            <div class="product-actions">
-                <a href="#" class="btn btn-green">КУПИТЬ</a>
-                <a href="{% url 'cart_add' product.id %}" class="btn btn-coral">В КОРЗИНУ</a>
-                <a href="#" class="btn btn-blue">♡</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="container product-extra">
-        <div class="extra-left">
-            <h3>ФОТО И ВИДЕО ПОКУПАТЕЛЕЙ</h3>
-            <div class="customer-photos">
-                {% for image in product.images.all|slice:":3" %}
-                    <img src="{{ image.image.url }}" alt="">
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="extra-right">
-            <h3>ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ</h3>
-            <div class="faq-grid">
-                <div>Условия доставки</div>
-                <div>Материал</div>
-                <div>Возврат товара</div>
-                <div>Способ оплаты</div>
-            </div>
-
-            <h3 class="mt-30">ДОСТАВКА И ВОЗВРАТ</h3>
-            <div class="delivery-box">
-                Ваш адрес “г. Город, ул. Улица, кв. Квартира”?
-            </div>
-        </div>
-    </div>
-</section>
+            <div class="detail-info-panel">
 {% endblock %}

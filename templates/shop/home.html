@@ -1,67 +1,37 @@
 {% extends 'base.html' %}
-
-{% block title %}Главная | UrbanWear{% endblock %}
+{% block title %}UrbanWear{% endblock %}
 
 {% block content %}
-<section class="home-section">
+<section class="home-page">
     <div class="container">
-        <div class="promo-grid four-cols">
-            <div class="promo-card promo-card-green">
-                <h3>СКИДКИ НА</h3>
-                <img src="/media/demo/summer.jpg" alt="">
-                <p>ЛЕТО</p>
+        <section class="hero-banner">
+            <div class="hero-overlay">
+                <div class="hero-text">
+                    <h1>СТИЛЬ<br><span>НА КАЖДЫЙ ДЕНЬ</span></h1>
+                    <p>Актуальная одежда и аксессуары для вашего идеального образа</p>
+                    <a href="{% url 'product_list' %}" class="hero-btn">СМОТРЕТЬ КОЛЛЕКЦИЮ</a>
+                </div>
+                <div class="hero-image-wrap">
+                    <img src="/media/demo/hero-cap.jpg" alt="hero">
+                </div>
             </div>
-            <div class="promo-card promo-card-green">
-                <h3>СКИДКИ НА</h3>
-                <img src="/media/demo/winter.jpg" alt="">
-                <p>ЗИМУ</p>
-            </div>
-            <div class="promo-card promo-card-green">
-                <h3>СКИДКИ НА</h3>
-                <img src="/media/demo/shoes.jpg" alt="">
-                <p>ОБУВЬ</p>
-            </div>
-            <div class="promo-card promo-card-green">
-                <h3>СКИДКИ НА</h3>
-                <img src="/media/demo/hats.jpg" alt="">
-                <p>ГОЛОВНЫЕ УБОРЫ</p>
-            </div>
-        </div>
+        </section>
 
-        <div class="promo-grid two-cols mt-40">
-            <div class="promo-card promo-card-coral large-card">
-                <h3>ТРЕНДЫ ЭТОГО СЕЗОНА</h3>
-                <img src="/media/demo/top.jpg" alt="">
-                <p>ВЕРХ</p>
+        <section class="section-block">
+            <h2 class="section-title green-title">ПОПУЛЯРНЫЕ КАТЕГОРИИ</h2>
+            <div class="category-grid-four">
+                <div class="category-card lime-card"><img src="/media/demo/summer.jpg" alt="summer"><span>ЛЕТО</span></div>
+                <div class="category-card lime-card"><img src="/media/demo/winter.jpg" alt="winter"><span>ЗИМУ</span></div>
+                <div class="category-card lime-card"><img src="/media/demo/shoes.jpg" alt="shoes"><span>ОБУВЬ</span></div>
+                <div class="category-card lime-card"><img src="/media/demo/hats.jpg" alt="hats"><span>ГОЛОВНЫЕ УБОРЫ</span></div>
             </div>
-            <div class="promo-card promo-card-coral large-card">
-                <h3>ТРЕНДЫ ЭТОГО СЕЗОНА</h3>
-                <img src="/media/demo/bottom.jpg" alt="">
-                <p>НИЗ</p>
-            </div>
-        </div>
+        </section>
 
-        <div class="style-box mt-60">
-            <h3>КОМПЛЕКТЫ В СТИЛЕ</h3>
-            <div class="style-grid">
-                <div class="style-item">
-                    <img src="/media/demo/business.jpg" alt="">
-                    <p>ДЕЛОВОЙ</p>
+        <section class="section-block">
+            <h2 class="section-title orange-title">ТРЕНДЫ ЭТОГО СЕЗОНА</h2>
+            <div class="trend-grid-two">
+                <div class="trend-card coral-card">
+                    <img src="/media/demo/top.jpg" alt="top">
+                    <span>ВЕРХ</span>
                 </div>
-                <div class="style-item">
-                    <img src="/media/demo/sport.jpg" alt="">
-                    <p>СПОРТИВНЫЙ</p>
-                </div>
-                <div class="style-item">
-                    <img src="/media/demo/casual.jpg" alt="">
-                    <p>КЭЖУАЛ</p>
-                </div>
-                <div class="style-item">
-                    <img src="/media/demo/urban.jpg" alt="">
-                    <p>URBAN</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 {% endblock %}
