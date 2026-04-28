@@ -1,3 +1,4 @@
+from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
@@ -25,15 +26,18 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from .forms import ProductImageUploadForm
 from .models import ProductImage
 from django.core.cache import cache
+from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Avg, Max, Min
+from django.db.models import Avg, Max, Min, Q
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from .models import Order
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
-from .models import Product
+from .forms import ProductForm, ProductImageUploadForm, ReviewForm
+from .models import Brand, Category, Order, Product, ProductImage
 
 def export_order_pdf_view(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -54,8 +58,10 @@ def home(request):
         max_price=Max('price'),
         min_price=Min('price')
     )
+    products = Product.objects.order_by('-created_at')
 
     return render(request, 'shop/home.html', {
+        'products': products,
         'latest_products': latest_products,
         'hoodies_count': hoodies_count,
         'expensive_exists': expensive_exists,
@@ -70,57 +76,152 @@ def export_order_pdf_view(request, order_id):
     response.write(f"PDF для заказа {order.id}")
     return response
 
+
+def _gender_filter(products, value):
+    women_words = ['жен', 'woman', 'women', 'female', 'девуш', 'дам']
+    men_words = ['муж', 'man', 'men', 'male', 'парн']
+
+    words = women_words if value == 'women' else men_words
+    query = Q()
+
+    for word in words:
+        query |= Q(category__name__icontains=word)
+        query |= Q(category__slug__icontains=word)
+        query |= Q(name__icontains=word)
+        query |= Q(description__icontains=word)
+
+    return products.filter(query)
+
 @cache_page(60 * 15)  # 15 минут
 def product_list(request):
-    products = Product.objects.all().exclude(price=0)
+    products = Product.objects.select_related('category', 'brand').prefetch_related('variants__size').exclude(price=0)
 
-    category = request.GET.get('category')
-    discount = request.GET.get('discount')
-    q = request.GET.get('q')
+    category = request.GET.get('category', '').strip()
+    q = request.GET.get('q', '').strip()
+    brand = request.GET.get('brand', '').strip()
+    size = request.GET.get('size', '').strip()
+    discount = request.GET.get('discount', '').strip()
+    min_price = request.GET.get('min_price', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
+    sort = request.GET.get('sort', 'popular').strip()
 
-    if category == 'women':
-        products = products.filter(category__name__icontains='жен')
-    elif category == 'men':
-        products = products.filter(category__name__icontains='муж')
+    if category in {'women', 'men'}:
+        products = _gender_filter(products, category)
     elif category == 'looks':
-        products = products.filter(category__name__icontains='образ')
+        products = products.filter(
+            Q(category__name__icontains='образ') |
+            Q(name__icontains='образ')
+        )
     elif category == 'shoes':
-        products = products.filter(category__name__icontains='обув')
+        products = products.filter(
+            Q(category__name__icontains='обув') |
+            Q(name__icontains='обув') |
+            Q(name__icontains='shoe') |
+            Q(name__icontains='sneaker')
+        )
     elif category == 'accessories':
-        products = products.filter(category__name__icontains='аксесс')
+        products = products.filter(
+            Q(category__name__icontains='аксесс') |
+            Q(name__icontains='аксесс') |
+            Q(name__icontains='шап') |
+            Q(name__icontains='кеп')
+        )
     elif category == 'season':
-        products = products.filter(category__name__icontains='сезон')
+        products = products.filter(
+            Q(category__name__icontains='сезон') |
+            Q(name__icontains='лет') |
+            Q(name__icontains='зим')
+        )
+    elif category:
+        products = products.filter(
+            Q(category__slug=category) |
+            Q(category__name__icontains=category)
+        )
+
+    if q:
+        products = products.filter(
+            Q(name__icontains=q) |
+            Q(description__icontains=q) |
+            Q(sku__icontains=q)
+        )
+
+    if brand:
+        products = products.filter(
+            Q(brand__slug=brand) |
+            Q(brand__name__icontains=brand)
+        )
+
+    if size:
+        products = products.filter(
+            variants__size__name__iexact=size,
+            variants__stock__gt=0
+        )
 
     if discount:
         products = products.filter(discount__gt=0)
 
-    if q:
-        products = products.filter(name__icontains=q)
+    if min_price:
+        try:
+            products = products.filter(price__gte=Decimal(min_price.replace(',', '.')))
+        except Exception:
+            messages.warning(request, 'Минимальная цена указана неверно.')
+
+    if max_price:
+        try:
+            products = products.filter(price__lte=Decimal(max_price.replace(',', '.')))
+        except Exception:
+            messages.warning(request, 'Максимальная цена указана неверно.')
+
+    if sort == 'price_asc':
+        products = products.order_by('price', 'name')
+    elif sort == 'price_desc':
+        products = products.order_by('-price', 'name')
+    elif sort == 'new':
+        products = products.order_by('-created_at')
+    else:
+        products = products.order_by('-created_at', 'name')
+
+    products = products.distinct()
 
     paginator = Paginator(products, 9)
     page = request.GET.get('page')
 
     try:
-        products = paginator.page(page)
+        products_page = paginator.page(page)
     except PageNotAnInteger:
-        products = paginator.page(1)
+        products_page = paginator.page(1)
     except EmptyPage:
-        products = paginator.page(paginator.num_pages)
+        products_page = paginator.page(paginator.num_pages)
+
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
 
     return render(request, 'shop/product_list.html', {
-        'products': products,
+        'products': products_page,
+        'categories': Category.objects.all(),
+        'brands': Brand.objects.all(),
         'current_category': category,
+        'current_brand': brand,
+        'current_size': size,
+        'current_sort': sort,
+        'query_params': query_params.urlencode(),
     })
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
+
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('product_list')
+            messages.success(request, 'Регистрация прошла успешно.')
+            return redirect('home')
     else:
         form = UserCreationForm()
+
     return render(request, 'registration/register.html', {'form': form})
 
 @staff_member_required
@@ -241,18 +342,22 @@ def increase_prices(request):
     return render(request, 'shop/increase_prices_confirm.html')
 
 def product_detail(request, slug):
-    try:
-        product = Product.objects.get(slug=slug)
-        viewed_products = request.session.get('viewed_products', [])
+    product = get_object_or_404(
+        Product.objects.select_related('category', 'brand').prefetch_related('images', 'variants', 'reviews'),
+        slug=slug
+    )
 
-        if product.id not in viewed_products:
-            viewed_products.append(product.id)
-
+    viewed_products = request.session.get('viewed_products', [])
+    if product.id not in viewed_products:
+        viewed_products.append(product.id)
         request.session['viewed_products'] = viewed_products
-        request.session['last_viewed_product'] = product.name
-    except Product.DoesNotExist:
-        raise Http404("Товар не найден")
-    return render(request, 'shop/product_detail.html', {'product': product})
+        request.session.modified = True
+
+    request.session['last_viewed_product'] = product.name
+
+    return render(request, 'shop/product_detail.html', {
+        'product': product,
+    })
 
 @staff_member_required
 def upload_product_images(request, slug):
@@ -275,20 +380,160 @@ def get_cached_data():
         cache.set('my_key', data, 60*5)
     return data
 
-def cart_add(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    cart = request.session.get('cart', {})
-    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
-    request.session['cart'] = cart
-    return redirect('cart_detail')
-
-def cart_detail(request):
+def cart(request):
     cart = request.session.get('cart', {})
     products = Product.objects.filter(id__in=cart.keys())
     items = []
+    subtotal = 0
+
     for product in products:
+        quantity = cart[str(product.id)]
+        line_total = product.get_discounted_price() * quantity
+        subtotal += line_total
+
         items.append({
             'product': product,
-            'quantity': cart[str(product.id)],
+            'quantity': quantity,
+            'line_total': line_total,
         })
-    return render(request, 'shop/cart.html', {'items': items})
+
+    delivery = 0
+    total = subtotal + delivery
+
+    return render(request, 'shop/cart.html', {
+        'items': items,
+        'subtotal': subtotal,
+        'delivery': delivery,
+        'total': total,
+    })
+
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    cart = request.session.get('cart', {})
+    product_id_str = str(product.id)
+
+    if product_id_str in cart:
+        cart[product_id_str] += 1
+    else:
+        cart[product_id_str] = 1
+
+    request.session['cart'] = cart
+    request.session.modified = True
+
+    return redirect('cart')
+
+
+def remove_from_cart(request, product_id):
+    cart = request.session.get('cart', {})
+    product_id_str = str(product_id)
+
+    if product_id_str in cart:
+        del cart[product_id_str]
+
+    request.session['cart'] = cart
+    request.session.modified = True
+
+    return redirect('cart')
+
+
+def update_cart(request, product_id):
+    cart = request.session.get('cart', {})
+    product_id_str = str(product_id)
+
+    quantity = int(request.POST.get('quantity', 1))
+
+    if quantity > 0:
+        cart[product_id_str] = quantity
+    else:
+        cart.pop(product_id_str, None)
+
+    request.session['cart'] = cart
+    request.session.modified = True
+
+    return redirect('cart')
+
+def cart_add(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    cart = request.session.get('cart', {})
+    product_id_str = str(product.id)
+
+    cart[product_id_str] = int(cart.get(product_id_str, 0)) + 1
+
+    request.session['cart'] = cart
+    request.session.modified = True
+
+    return redirect('cart')
+
+
+def cart_remove(request, product_id):
+    cart = request.session.get('cart', {})
+
+    cart.pop(str(product_id), None)
+
+    request.session['cart'] = cart
+    request.session.modified = True
+
+    return redirect('cart')
+
+
+def cart_update(request, product_id):
+    cart = request.session.get('cart', {})
+
+    quantity = request.POST.get('quantity', '1')
+
+    try:
+        quantity = int(quantity)
+    except ValueError:
+        quantity = 1
+
+    product_id_str = str(product_id)
+
+    if quantity > 0:
+        cart[product_id_str] = quantity
+    else:
+        cart.pop(product_id_str, None)
+
+    request.session['cart'] = cart
+    request.session.modified = True
+
+    return redirect('cart')
+
+
+def cart_detail(request):
+    cart = request.session.get('cart', {})
+
+    products = Product.objects.filter(id__in=cart.keys()).select_related('category', 'brand')
+
+    items = []
+    subtotal = Decimal('0')
+    discount_total = Decimal('0')
+
+    for product in products:
+        quantity = int(cart.get(str(product.id), 1))
+
+        old_price = product.price * quantity
+        unit_price = product.get_discounted_price()
+        line_total = unit_price * quantity
+
+        subtotal += old_price
+        discount_total += old_price - line_total
+
+        items.append({
+            'product': product,
+            'quantity': quantity,
+            'unit_price': unit_price,
+            'line_total': line_total,
+        })
+
+    delivery = Decimal('0')
+    total = subtotal - discount_total + delivery
+
+    return render(request, 'shop/cart.html', {
+        'items': items,
+        'subtotal': subtotal,
+        'discount_total': discount_total,
+        'delivery': delivery,
+        'total': total,
+    })

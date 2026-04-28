@@ -4,33 +4,56 @@
 {% block content %}
 <section class="cart-page-design">
     <div class="container">
+        <h1 class="cart-title">КОРЗИНА</h1>
+
         <div class="cart-layout-design">
             <div class="cart-items-design">
                 {% for item in items %}
                     <div class="cart-item-design">
-                        <div class="cart-item-thumb">
+                        <a href="{{ item.product.get_absolute_url }}" class="cart-item-thumb product-image-frame">
                             {% if item.product.main_image %}
                                 <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
                             {% else %}
                                 <div class="empty-image">NO IMAGE</div>
                             {% endif %}
-                        </div>
+                        </a>
 
                         <div class="cart-item-text">
-                            <h3>{{ item.product.name|upper }}</h3>
+                            <h3>
+                                <a href="{{ item.product.get_absolute_url }}">
+                                    {{ item.product.name|upper }}
+                                </a>
+                            </h3>
+
                             <p>Размер: 46-50 L</p>
                             <p>Цвет: Белый</p>
-                            <div class="cart-item-price">{{ item.product.price }} РУБ</div>
+
+                            <div class="cart-item-price">
+                                {{ item.unit_price|floatformat:0 }} РУБ
+                            </div>
+
+                            <div class="cart-line-total">
+                                Итого: {{ item.line_total|floatformat:0 }} РУБ
+                            </div>
                         </div>
 
-                        <div class="cart-qty-box">
-                            <button>-</button>
+                        <form class="cart-qty-box" method="post" action="{% url 'cart_update' item.product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" aria-label="Уменьшить количество">
+                                -
+                            </button>
+
                             <span>{{ item.quantity }}</span>
-                            <button>+</button>
-                        </div>
+
+                            <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" aria-label="Увеличить количество">
+                                +
+                            </button>
+                        </form>
 
                         <div class="cart-icons-box">
-                            <a href="#">🗑</a>
+                            <a href="{% url 'cart_remove' item.product.id %}" aria-label="Удалить товар">
+                                🗑
+                            </a>
                         </div>
                     </div>
                 {% empty %}
@@ -40,10 +63,27 @@
 
             <aside class="cart-summary-design">
                 <h3>ВАШ ЗАКАЗ</h3>
-                <div class="summary-line"><span>Товаров на сумму</span><span>5097 РУБ</span></div>
-                <div class="summary-line"><span>Скидка</span><span>-497 РУБ</span></div>
-                <div class="summary-line"><span>Доставка</span><span>0 РУБ</span></div>
-                <div class="summary-line total"><span>ИТОГО</span><span>4600 РУБ</span></div>
+
+                <div class="summary-line">
+                    <span>Товаров на сумму</span>
+                    <span>{{ subtotal|floatformat:0 }} РУБ</span>
+                </div>
+
+                <div class="summary-line">
+                    <span>Скидка</span>
+                    <span>-{{ discount_total|floatformat:0 }} РУБ</span>
+                </div>
+
+                <div class="summary-line">
+                    <span>Доставка</span>
+                    <span>{{ delivery|floatformat:0 }} РУБ</span>
+                </div>
+
+                <div class="summary-line total">
+                    <span>ИТОГО</span>
+                    <span>{{ total|floatformat:0 }} РУБ</span>
+                </div>
+
                 <button class="order-btn">ОФОРМИТЬ ЗАКАЗ</button>
             </aside>
         </div>

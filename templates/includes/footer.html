@@ -1,37 +1,35 @@
 <footer class="site-footer">
-    <div class="container footer-top">
-        <div class="footer-col">
-            <h4>О нас</h4>
-            <a href="#">UrbanWear</a>
-            <a href="#">Работа у нас</a>
-            <a href="#">Сертификат</a>
-            <a href="#">Фото и видео</a>
-            <a href="#">Пресса</a>
+    <div class="container">
+        <div class="footer-top">
+            <section class="footer-col" aria-labelledby="footer-catalog">
+                <h2 id="footer-catalog">Каталог</h2>
+                <a href="{% url 'product_list' %}?category=women">Женщинам</a>
+                <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
+                <a href="{% url 'product_list' %}">Все товары</a>
+            </section>
+
+            <section class="footer-col" aria-labelledby="footer-user">
+                <h2 id="footer-user">Покупателю</h2>
+                <a href="{% url 'cart' %}">Корзина</a>
+                <a href="{% url 'login' %}">Вход</a>
+                <a href="{% url 'register' %}">Регистрация</a>
+            </section>
+
+            <section class="footer-col" aria-labelledby="footer-info">
+                <h2 id="footer-info">Информация</h2>
+                <p>UrbanWear — магазин одежды и аксессуаров.</p>
+            </section>
+
+            <section class="footer-col" aria-labelledby="footer-contacts">
+                <h2 id="footer-contacts">Контакты</h2>
+                <p>Email: info@urbanwear.local</p>
+                <button class="footer-btn" type="button">Связаться</button>
+            </section>
         </div>
 
-        <div class="footer-col">
-            <h4>Покупателям</h4>
-            <a href="#">Вопросы и ответы</a>
-            <a href="#">TRACK &amp; follow заказов</a>
-            <a href="#">Публичная оферта</a>
-            <a href="#">Политика конфиденциальности</a>
-        </div>
-
-        <div class="footer-col">
-            <h4>Связаться с нами</h4>
-            <p>Мы в соцсетях</p>
-            <p>MAX</p>
-            <p>8 919 589 39 39</p>
-            <p>Ежедневно с 9:00 до 20:00</p>
-        </div>
-
-        <div class="footer-col footer-news">
-            <h4>Будь в курсе новостей</h4>
-            <p>А также первыми узнавайте о новых коллекциях, специальных предложениях и закрытых акциях для наших подписчиков.</p>
-            <button class="footer-btn">Подписаться</button>
+        <div class="footer-bottom">
+            <div class="footer-brand" aria-label="UrbanWear">UrbanWear</div>
+            <div class="footer-bag" aria-hidden="true">👜</div>
         </div>
     </div>
-
-    <div class="container footer-bottom">
-        <div class="footer-brand">UrbanWear</div>
 </footer>

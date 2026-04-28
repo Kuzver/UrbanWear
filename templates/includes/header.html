@@ -1,29 +1,80 @@
-{% load i18n %}
 <header class="site-header">
-    <div class="container header-row">
-        <a href="{% url 'home' %}" class="site-logo">UrbanWear</a>
+    <div class="container">
+        <div class="header-row">
+            <a href="{% url 'home' %}" class="site-logo" aria-label="UrbanWear — на главную">
+                UrbanWear
+            </a>
 
-        <form class="header-search" method="get" action="{% url 'product_search' %}">
-            <input type="text" name="q" placeholder="поиск">
-            <button type="submit">⌕</button>
-        </form>
+            <form class="header-search" method="get" action="{% url 'product_list' %}" role="search">
+                <label for="site-search" class="visually-hidden">Поиск по товарам</label>
+                <input id="site-search"
+                       type="text"
+                       name="q"
+                       value="{{ request.GET.q }}"
+                       placeholder="поиск"
+                       aria-label="Поиск по товарам">
+                <button type="submit" aria-label="Найти">⌕</button>
+            </form>
 
-        <div class="header-icons">
-            <a href="#" class="icon-circle">⌖</a>
-            <a href="{% url 'login' %}" class="icon-circle">◉</a>
-            <a href="{% url 'cart' %}" class="icon-circle">🛒</a>
+            <div class="header-icons">
+                <div class="vision-dropdown">
+                    <button type="button"
+                            class="icon-circle"
+                            id="visionToggle"
+                            aria-expanded="false"
+                            aria-controls="visionPanel"
+                            aria-label="Режимы для слабовидящих">
+                        Aa
+                    </button>
+
+                    <div class="vision-panel" id="visionPanel">
+                        <button type="button" data-vision-mode="normal">Обычный</button>
+                        <button type="button" data-vision-mode="low-vision">Контраст</button>
+                        <button type="button" data-vision-mode="vision-large">Крупный текст</button>
+                        <button type="button" data-vision-mode="vision-mono">Ч/Б</button>
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="icon-circle" aria-label="Выйти">⎋</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="icon-circle" aria-label="Войти">◉</a>
+                {% endif %}
+
+                <a href="{% url 'cart' %}" class="icon-circle" aria-label="Перейти в корзину">🛒</a>
+            </div>
         </div>
-    </div>
 
-    <div class="container header-nav-row">
-        <button class="burger-btn" type="button">☰</button>
-        <nav class="top-nav">
-            <a href="{% url 'product_list' %}?category=women">Женщинам</a>
-            <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
-            <a href="{% url 'product_list' %}?category=looks">Образы</a>
-            <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
-            <a href="{% url 'product_list' %}?category=accessories">Аксессуары</a>
-            <a href="{% url 'product_list' %}?discount=1">Акции</a>
-        </nav>
+        <div class="header-nav-row">
+            <div class="catalog-dropdown">
+                <button class="burger-btn"
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="catalog-menu"
+                        aria-label="Открыть меню каталога">
+                    ☰
+                </button>
+
+                <div id="catalog-menu" class="catalog-menu">
+                    <a href="{% url 'product_list' %}?category=women">Женщинам</a>
+                    <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
+                    <a href="{% url 'product_list' %}?category=looks">Образы</a>
+                    <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
+                    <a href="{% url 'product_list' %}?discount=1">Акции</a>
+                    <a href="{% url 'product_list' %}">Все товары</a>
+                </div>
+            </div>
+
+            <nav class="top-nav" aria-label="Основная навигация">
+                <a href="{% url 'product_list' %}?category=women">Женщинам</a>
+                <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
+                <a href="{% url 'product_list' %}?category=looks">Образы</a>
+                <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
+                <a href="{% url 'product_list' %}?discount=1">Акции</a>
+            </nav>
+        </div>
     </div>
 </header>

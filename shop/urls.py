@@ -8,6 +8,7 @@ urlpatterns = [
 
     path('products/', views.product_list, name='product_list'),
     path('product/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('product/<slug:product_slug>/add_review/', views.add_review, name='add_review'),
 
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/', views.register, name='register'),
@@ -19,8 +20,10 @@ urlpatterns = [
     path('increase-prices/', views.increase_prices, name='increase_prices'),
     path('product/<slug:slug>/upload-images/', views.upload_product_images, name='upload_images'),
 
-    path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
     path('cart/', views.cart_detail, name='cart'),
+    path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
+    path('cart/update/<int:product_id>/', views.cart_update, name='cart_update'),
+    path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
 
     path('search/', views.product_search, name='product_search'),
     path('orders/<int:order_id>/pdf/', views.export_order_pdf_view, name='order_pdf'),

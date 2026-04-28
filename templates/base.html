@@ -8,10 +8,112 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Перейти к содержимому</a>
+
     {% include 'includes/header.html' %}
-    <main class="site-main">
+
+    <main id="main-content" class="site-main">
         {% block content %}{% endblock %}
     </main>
+
     {% include 'includes/footer.html' %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fallbackImage = "{% static 'img/placeholder-product.svg' %}";
+
+    document.querySelectorAll('img').forEach(function (img) {
+        img.loading = img.loading || 'lazy';
+        img.decoding = 'async';
+
+        img.addEventListener('error', function () {
+            if (img.dataset.fallbackApplied === '1') return;
+
+            img.dataset.fallbackApplied = '1';
+            img.src = fallbackImage;
+            img.alt = img.alt || 'Изображение товара пока недоступно';
+            img.classList.add('image-fallback');
+        });
+    });
+
+    const body = document.body;
+    const savedMode = localStorage.getItem('visionMode') || 'normal';
+
+    function setVisionMode(mode) {
+        body.classList.remove('low-vision', 'vision-contrast', 'vision-large', 'vision-mono');
+
+        if (mode !== 'normal') {
+            body.classList.add(mode);
+        }
+
+        localStorage.setItem('visionMode', mode);
+
+        document.querySelectorAll('[data-vision-mode]').forEach(function (button) {
+            button.setAttribute(
+                'aria-pressed',
+                button.dataset.visionMode === mode ? 'true' : 'false'
+            );
+        });
+    }
+
+    setVisionMode(savedMode);
+
+    document.querySelectorAll('[data-vision-mode]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            setVisionMode(button.dataset.visionMode);
+        });
+    });
+
+    const visionToggle = document.getElementById('visionToggle');
+    const visionPanel = document.getElementById('visionPanel');
+
+    if (visionToggle && visionPanel) {
+        visionToggle.addEventListener('click', function () {
+            const opened = visionPanel.classList.toggle('open');
+            visionToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+        });
+    }
+
+    const burger = document.querySelector('.burger-btn');
+    const menu = document.getElementById('catalog-menu');
+
+    if (burger && menu) {
+        burger.addEventListener('click', function () {
+            const isOpen = menu.classList.toggle('open');
+            burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!menu.contains(event.target) && !burger.contains(event.target)) {
+                menu.classList.remove('open');
+                burger.setAttribute('aria-expanded', 'false');
+            }
+
+            if (visionPanel && visionToggle && !visionPanel.contains(event.target) && !visionToggle.contains(event.target)) {
+                visionPanel.classList.remove('open');
+                visionToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    const mainProductImage = document.getElementById('mainProductImage');
+
+    document.querySelectorAll('[data-product-image]').forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+            if (!mainProductImage) return;
+
+            mainProductImage.src = thumb.dataset.fullImage;
+            mainProductImage.alt = thumb.dataset.alt || mainProductImage.alt;
+
+            document.querySelectorAll('[data-product-image]').forEach(function (item) {
+                item.classList.remove('active');
+                item.setAttribute('aria-pressed', 'false');
+            });
+
+            thumb.classList.add('active');
+            thumb.setAttribute('aria-pressed', 'true');
+        });
+    });
+});
+</script>
 </body>
 </html>

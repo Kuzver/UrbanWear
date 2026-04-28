@@ -27,34 +27,69 @@ class ReviewForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['category', 'name', 'slug', 'sku', 'price', 'stock', 'description']
-        exclude = []  # можно исключить поля, но мы уже перечислили все
+        fields = [
+            'category',
+            'brand',
+            'name',
+            'slug',
+            'sku',
+            'price',
+            'discount',
+            'stock',
+            'description',
+            'main_image',
+            'instruction',
+            'video_url',
+            'documentation',
+            'recommended_products',
+        ]
+
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
+
         labels = {
             'name': 'Название товара',
-            'price': 'Цена (р ------уб)',
-        }
-        help_texts = {
-            'slug': 'Уникальный идентификатор ----------- для URL. Если не заполнить, сгенерируется автоматически.',
-        }
-        error_messages = {
-            'price': {
-                'min_value': 'Цена не может быть отрицательной',
-            },
-            'sku': {
-                'unique': 'Товар с таким артикулом уже существует',
-            },
+            'price': 'Цена, руб.',
+            'main_image': 'Главное изображение товара',
         }
 
-class ProductImageForm(forms.ModelForm):
-    class Meta:
-        model = ProductImage
-        fields = ['image']
+        help_texts = {
+            'slug': 'Если не заполнить, slug сгенерируется автоматически.',
+            'main_image': 'Это фото будет показано в каталоге, корзине и карточке товара.',
+        }
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault(
+            'widget',
+            MultipleFileInput(attrs={
+                'multiple': True,
+                'accept': 'image/*',
+            })
+        )
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+
+        files = data if isinstance(data, (list, tuple)) else [data]
+
+        return [
+            super(MultipleFileField, self).clean(file, initial)
+            for file in files
+        ]
+
 
 class ProductImageUploadForm(forms.Form):
-    images = forms.FileField(
-        label='Выберите изображение',
-        required=False
+    images = MultipleFileField(
+        label='Выберите изображения',
+        required=False,
+        help_text='Можно выбрать несколько фото сразу.',
     )

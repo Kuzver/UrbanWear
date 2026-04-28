@@ -34,4 +34,70 @@
                     </div>
 
                     <div class="filter-label">Размер</div>
+                    <div class="size-grid">
+                        <span>XS</span><span>S</span><span>M</span><span>L</span><span>XL</span>
+                    </div>
+
+                    <div class="filter-label">Цвет</div>
+                    <div class="color-row">
+                        <i style="background:#f4ede2"></i>
+                        <i style="background:#dfc9b3"></i>
+                        <i style="background:#0e0e0e"></i>
+                        <i style="background:#e89b72"></i>
+                    </div>
+
+                    <div class="filter-label">Бренд</div>
+                    <select class="catalog-select">
+                        <option>Выбрать бренд</option>
+                    </select>
+
+                    <button class="apply-btn">ПРИМЕНИТЬ</button>
+                    <a href="#" class="reset-link">Сбросить</a>
+                </div>
+            </aside>
+
+            <div class="catalog-main">
+                <div class="catalog-topbar">
+                    <select class="catalog-sort-select">
+                        <option>По популярности</option>
+                    </select>
+                    <div class="catalog-view-icons">
+                        <span>☷</span>
+                        <span>☰</span>
+                    </div>
+                </div>
+
+                <div class="catalog-products-grid">
+                    {% for product in products %}
+                        <article class="catalog-product-card">
+                            <a href="{{ product.get_absolute_url }}" class="catalog-product-image">
+                                {% if product.main_image %}
+                                    <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="empty-image">NO IMAGE</div>
+                                {% endif %}
+                            </a>
+                            <h3><a href="{{ product.get_absolute_url }}">{{ product.name|upper }}</a></h3>
+                            <div class="catalog-price">{{ product.price }} РУБ</div>
+                        </article>
+                    {% empty %}
+                        <p>Товары не найдены.</p>
+                    {% endfor %}
+                </div>
+
+                {% if products.has_other_pages %}
+                    <div class="catalog-pagination">
+                        {% if products.has_previous %}
+                            <a href="?page={{ products.previous_page_number }}">&lt;</a>
+                        {% endif %}
+                        <span class="active-page">{{ products.number }}</span>
+                        {% if products.has_next %}
+                            <a href="?page={{ products.next_page_number }}">&gt;</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

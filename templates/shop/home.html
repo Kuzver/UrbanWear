@@ -4,6 +4,7 @@
 {% block content %}
 <section class="home-page">
     <div class="container">
+
         <section class="hero-banner">
             <div class="hero-overlay">
                 <div class="hero-text">
@@ -11,27 +12,77 @@
                     <p>Актуальная одежда и аксессуары для вашего идеального образа</p>
                     <a href="{% url 'product_list' %}" class="hero-btn">СМОТРЕТЬ КОЛЛЕКЦИЮ</a>
                 </div>
+
                 <div class="hero-image-wrap">
-                    <img src="/media/demo/hero-cap.jpg" alt="hero">
+                    {% if products and products.0.main_image %}
+                        <img src="{{ products.0.main_image.url }}" alt="{{ products.0.name }}">
+                    {% else %}
+                        <div class="empty-image big-empty">NO IMAGE</div>
+                    {% endif %}
                 </div>
             </div>
         </section>
 
         <section class="section-block">
-            <h2 class="section-title green-title">ПОПУЛЯРНЫЕ КАТЕГОРИИ</h2>
+            <h2 class="section-title green-title">ПОПУЛЯРНЫЕ ТОВАРЫ</h2>
             <div class="category-grid-four">
-                <div class="category-card lime-card"><img src="/media/demo/summer.jpg" alt="summer"><span>ЛЕТО</span></div>
-                <div class="category-card lime-card"><img src="/media/demo/winter.jpg" alt="winter"><span>ЗИМУ</span></div>
-                <div class="category-card lime-card"><img src="/media/demo/shoes.jpg" alt="shoes"><span>ОБУВЬ</span></div>
-                <div class="category-card lime-card"><img src="/media/demo/hats.jpg" alt="hats"><span>ГОЛОВНЫЕ УБОРЫ</span></div>
+                {% for product in products|slice:":4" %}
+                    <div class="category-card lime-card">
+                        <a href="{{ product.get_absolute_url }}">
+                            {% if product.main_image %}
+                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="empty-image">NO IMAGE</div>
+                            {% endif %}
+                            <span>{{ product.name|upper }}</span>
+                        </a>
+                    </div>
+                {% empty %}
+                    <p>Товары пока не добавлены.</p>
+                {% endfor %}
             </div>
         </section>
 
         <section class="section-block">
-            <h2 class="section-title orange-title">ТРЕНДЫ ЭТОГО СЕЗОНА</h2>
+            <h2 class="section-title orange-title">НОВИНКИ</h2>
             <div class="trend-grid-two">
-                <div class="trend-card coral-card">
-                    <img src="/media/demo/top.jpg" alt="top">
-                    <span>ВЕРХ</span>
-                </div>
+                {% for product in products|slice:":2" %}
+                    <div class="trend-card coral-card">
+                        <a href="{{ product.get_absolute_url }}">
+                            {% if product.main_image %}
+                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="empty-image">NO IMAGE</div>
+                            {% endif %}
+                            <span>{{ product.name|upper }}</span>
+                        </a>
+                    </div>
+                {% empty %}
+                    <p>Нет новых товаров.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="style-showcase">
+            <h2>КОМПЛЕКТЫ В СТИЛЕ</h2>
+            <div class="style-grid-four">
+                {% for product in products|slice:":4" %}
+                    <div class="style-card">
+                        <a href="{{ product.get_absolute_url }}">
+                            {% if product.main_image %}
+                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="empty-image">NO IMAGE</div>
+                            {% endif %}
+                            <span>{{ product.name|upper }}</span>
+                        </a>
+                    </div>
+                {% empty %}
+                    <p>Нет товаров для показа.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+</section>
 {% endblock %}
