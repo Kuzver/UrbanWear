@@ -7,60 +7,120 @@
         <div class="breadcrumbs">
             <a href="{% url 'home' %}">ГЛАВНАЯ</a>
             <span>/</span>
-            <span>ЖЕНЩИНАМ</span>
-            <span>/</span>
-            <span>ОДЕЖДА</span>
+            <a href="{% url 'product_list' %}">КАТАЛОГ</a>
+            {% if current_category %}
+                <span>/</span>
+                <span>{{ current_category_label }}</span>
+            {% endif %}
         </div>
 
         <div class="catalog-layout">
             <aside class="catalog-sidebar">
                 <div class="sidebar-title">КАТЕГОРИИ</div>
-                <div class="sidebar-links">
-                    <a href="#">По цене</a>
-                    <a href="#">Материал</a>
-                    <a href="#">Акции</a>
-                    <a href="#">Размер</a>
-                    <a href="#">Бренд</a>
-                    <a href="#">Образ</a>
-                </div>
+
+                <nav class="sidebar-links">
+                    <a href="{% url 'product_list' %}" class="{% if not current_category %}active{% endif %}">Все товары</a>
+                    <a href="{% url 'product_list' %}?category=women" class="{% if current_category == 'women' %}active{% endif %}">Женщинам</a>
+                    <a href="{% url 'product_list' %}?category=men" class="{% if current_category == 'men' %}active{% endif %}">Мужчинам</a>
+                    <a href="{% url 'product_list' %}?category=looks" class="{% if current_category == 'looks' %}active{% endif %}">Образы</a>
+                    <a href="{% url 'product_list' %}?category=shoes" class="{% if current_category == 'shoes' %}active{% endif %}">Обувь</a>
+                    <a href="{% url 'product_list' %}?discount=1">Акции</a>
+                </nav>
 
                 <div class="sidebar-title sidebar-gap">ФИЛЬТРЫ</div>
-                <div class="filter-box-dark">
+
+                <form class="filter-box-dark" method="get" action="{% url 'product_list' %}">
+                    {% if current_category %}
+                        <input type="hidden" name="category" value="{{ current_category }}">
+                    {% endif %}
+
                     <div class="filter-label">Цена</div>
-                    <div class="fake-range"></div>
-                    <div class="mini-input-row">
-                        <span>0</span>
-                        <span>34000</span>
+                    <div class="price-filter-row">
+                        <input type="number" name="min_price" value="{{ request.GET.min_price }}" placeholder="от" min="0">
+                        <input type="number" name="max_price" value="{{ request.GET.max_price }}" placeholder="до" min="0">
                     </div>
 
                     <div class="filter-label">Размер</div>
-                    <div class="size-grid">
-                        <span>XS</span><span>S</span><span>M</span><span>L</span><span>XL</span>
+                    <div class="size-grid-links">
+                        <label>
+                            <input type="radio" name="size" value="XS" {% if current_size == 'XS' %}checked{% endif %}>
+                            <span>XS</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="size" value="S" {% if current_size == 'S' %}checked{% endif %}>
+                            <span>S</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="size" value="M" {% if current_size == 'M' %}checked{% endif %}>
+                            <span>M</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="size" value="L" {% if current_size == 'L' %}checked{% endif %}>
+                            <span>L</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="size" value="XL" {% if current_size == 'XL' %}checked{% endif %}>
+                            <span>XL</span>
+                        </label>
                     </div>
 
                     <div class="filter-label">Цвет</div>
-                    <div class="color-row">
-                        <i style="background:#f4ede2"></i>
-                        <i style="background:#dfc9b3"></i>
-                        <i style="background:#0e0e0e"></i>
-                        <i style="background:#e89b72"></i>
+                    <div class="color-filter-row">
+                        <label title="Белый">
+                            <input type="radio" name="color" value="white" {% if current_color == 'white' %}checked{% endif %}>
+                            <span style="background:#f4ede2"></span>
+                        </label>
+                        <label title="Бежевый">
+                            <input type="radio" name="color" value="beige" {% if current_color == 'beige' %}checked{% endif %}>
+                            <span style="background:#dfc9b3"></span>
+                        </label>
+                        <label title="Черный">
+                            <input type="radio" name="color" value="black" {% if current_color == 'black' %}checked{% endif %}>
+                            <span style="background:#0e0e0e"></span>
+                        </label>
+                        <label title="Оранжевый">
+                            <input type="radio" name="color" value="orange" {% if current_color == 'orange' %}checked{% endif %}>
+                            <span style="background:#e89b72"></span>
+                        </label>
                     </div>
 
                     <div class="filter-label">Бренд</div>
-                    <select class="catalog-select">
-                        <option>Выбрать бренд</option>
+                    <select name="brand" class="catalog-select">
+                        <option value="">Выбрать бренд</option>
+                        {% for brand in brands %}
+                            <option value="{{ brand.slug }}" {% if current_brand == brand.slug %}selected{% endif %}>
+                                {{ brand.name }}
+                            </option>
+                        {% endfor %}
                     </select>
 
-                    <button class="apply-btn">ПРИМЕНИТЬ</button>
-                    <a href="#" class="reset-link">Сбросить</a>
-                </div>
+                    <label class="discount-check">
+                        <input type="checkbox" name="discount" value="1" {% if request.GET.discount %}checked{% endif %}>
+                        Только акции
+                    </label>
+
+                    <button type="submit" class="apply-btn">ПРИМЕНИТЬ</button>
+                    <a href="{% url 'product_list' %}" class="reset-link">Сбросить</a>
+                </form>
             </aside>
 
             <div class="catalog-main">
                 <div class="catalog-topbar">
-                    <select class="catalog-sort-select">
-                        <option>По популярности</option>
-                    </select>
+                    <form method="get" action="{% url 'product_list' %}" class="catalog-sort-form">
+                        {% for key, value in request.GET.items %}
+                            {% if key != 'sort' and key != 'page' %}
+                                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                            {% endif %}
+                        {% endfor %}
+
+                        <select name="sort" class="catalog-sort-select" onchange="this.form.submit()">
+                            <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>По популярности</option>
+                            <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Сначала новые</option>
+                            <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Сначала дешевле</option>
+                            <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Сначала дороже</option>
+                        </select>
+                    </form>
+
                     <div class="catalog-view-icons">
                         <span>☷</span>
                         <span>☰</span>
@@ -70,15 +130,21 @@
                 <div class="catalog-products-grid">
                     {% for product in products %}
                         <article class="catalog-product-card">
-                            <a href="{{ product.get_absolute_url }}" class="catalog-product-image">
+                            <a href="{{ product.get_absolute_url }}" class="catalog-product-image product-image-frame">
                                 {% if product.main_image %}
                                     <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
                                 {% else %}
                                     <div class="empty-image">NO IMAGE</div>
                                 {% endif %}
                             </a>
-                            <h3><a href="{{ product.get_absolute_url }}">{{ product.name|upper }}</a></h3>
-                            <div class="catalog-price">{{ product.price }} РУБ</div>
+
+                            <h3>
+                                <a href="{{ product.get_absolute_url }}">{{ product.name|upper }}</a>
+                            </h3>
+
+                            <div class="catalog-price">
+                                {{ product.get_discounted_price|floatformat:0 }} РУБ
+                            </div>
                         </article>
                     {% empty %}
                         <p>Товары не найдены.</p>
@@ -88,11 +154,13 @@
                 {% if products.has_other_pages %}
                     <div class="catalog-pagination">
                         {% if products.has_previous %}
-                            <a href="?page={{ products.previous_page_number }}">&lt;</a>
+                            <a href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ products.previous_page_number }}">&lt;</a>
                         {% endif %}
+
                         <span class="active-page">{{ products.number }}</span>
+
                         {% if products.has_next %}
-                            <a href="?page={{ products.next_page_number }}">&gt;</a>
+                            <a href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ products.next_page_number }}">&gt;</a>
                         {% endif %}
                     </div>
                 {% endif %}

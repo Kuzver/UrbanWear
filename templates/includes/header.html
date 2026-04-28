@@ -1,6 +1,6 @@
 <header class="site-header">
-    <div class="container">
-        <div class="header-row">
+    <div class="header-top">
+        <div class="container header-row">
             <a href="{% url 'home' %}" class="site-logo" aria-label="UrbanWear — на главную">
                 UrbanWear
             </a>
@@ -11,7 +11,7 @@
                        type="text"
                        name="q"
                        value="{{ request.GET.q }}"
-                       placeholder="поиск"
+                       placeholder="ПОИСК"
                        aria-label="Поиск по товарам">
                 <button type="submit" aria-label="Найти">⌕</button>
             </form>
@@ -35,20 +35,19 @@
                     </div>
                 </div>
 
-                {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'logout' %}" class="logout-form">
-                        {% csrf_token %}
-                        <button type="submit" class="icon-circle" aria-label="Выйти">⎋</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="icon-circle" aria-label="Войти">◉</a>
-                {% endif %}
+               {% if user.is_authenticated %}
+    <a href="{% url 'profile' %}" class="icon-circle" aria-label="Профиль">◉</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="icon-circle" aria-label="Войти">◉</a>
+        {% endif %}
 
-                <a href="{% url 'cart' %}" class="icon-circle" aria-label="Перейти в корзину">🛒</a>
+                <a href="{% url 'cart' %}" class="icon-circle" aria-label="Корзина">🛒</a>
             </div>
         </div>
+    </div>
 
-        <div class="header-nav-row">
+    <div class="header-bottom">
+        <div class="container header-nav-row">
             <div class="catalog-dropdown">
                 <button class="burger-btn"
                         type="button"
@@ -69,11 +68,11 @@
             </div>
 
             <nav class="top-nav" aria-label="Основная навигация">
-                <a href="{% url 'product_list' %}?category=women">Женщинам</a>
-                <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
-                <a href="{% url 'product_list' %}?category=looks">Образы</a>
-                <a href="{% url 'product_list' %}?category=shoes">Обувь</a>
-                <a href="{% url 'product_list' %}?discount=1">Акции</a>
+                <a href="{% url 'product_list' %}?category=women">ЖЕНЩИНАМ</a>
+                <a href="{% url 'product_list' %}?category=men">МУЖЧИНАМ</a>
+                <a href="{% url 'product_list' %}?category=looks">ОБРАЗЫ</a>
+                <a href="{% url 'product_list' %}?category=shoes">ОБУВЬ</a>
+                <a href="{% url 'product_list' %}?discount=1">АКЦИИ</a>
             </nav>
         </div>
     </div>

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="container">
+        <div class="profile-layout">
+            <aside class="profile-card">
+                <div class="profile-menu">
+                    <div class="profile-menu-row">
+                        <span class="profile-menu-icon">♡</span>
+                        <span class="profile-menu-text">
+                            {% if user.get_full_name %}
+                                {{ user.get_full_name }}
+                            {% else %}
+                                {{ user.username }}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <a href="#" class="profile-menu-row">
+                        <span class="profile-menu-icon">▣</span>
+                        <span class="profile-menu-text">Способ оплаты</span>
+                    </a>
+
+                    <a href="#" class="profile-menu-row">
+                        <span class="profile-menu-icon">▤</span>
+                        <span class="profile-menu-text">Реквизиты</span>
+                    </a>
+
+                    <a href="#" class="profile-menu-row">
+                        <span class="profile-menu-icon">⚙</span>
+                        <span class="profile-menu-text">Настройки</span>
+                    </a>
+
+                    <a href="#" class="profile-menu-row">
+                        <span class="profile-menu-icon">▭</span>
+                        <span class="profile-menu-text">Ваши устройства</span>
+                    </a>
+                </div>
+            </aside>
+
+            <div class="profile-main">
+                <div class="profile-balance">
+                    <div class="balance-value">00000 ₽</div>
+                    <button type="button" class="balance-button">Пополнить</button>
+                </div>
+
+                <div class="profile-tabs">
+                    <a href="#" class="profile-tab">избранное ♡</a>
+                    <a href="#" class="profile-tab">покупки ▢</a>
+                    <a href="#" class="profile-tab">ждут оценки ☆</a>
+                </div>
+
+                <section>
+                    <h2 class="profile-orders-title">Заказы</h2>
+
+                    <div class="profile-orders">
+                        <div class="profile-orders-grid">
+                            {% for product in profile_products %}
+                                <a href="{{ product.get_absolute_url }}" class="profile-order-img">
+                                    {% if product.main_image %}
+                                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                                    {% else %}
+                                        <div class="empty-image">NO IMAGE</div>
+                                    {% endif %}
+                                </a>
+                            {% empty %}
+                                <div class="profile-order-img">
+                                    <div class="empty-image">NO IMAGE</div>
+                                </div>
+                                <div class="profile-order-img">
+                                    <div class="empty-image">NO IMAGE</div>
+                                </div>
+                                <div class="profile-order-img">
+                                    <div class="empty-image">NO IMAGE</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

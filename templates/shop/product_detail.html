@@ -1,90 +1,107 @@
-<div class="detail-layout">
-    <div class="detail-thumbs" aria-label="Фотографии товара">
-        {% if product.main_image %}
-            <button type="button"
-                    class="detail-thumb active"
-                    data-product-image
-                    data-full-image="{{ product.main_image.url }}"
-                    data-alt="{{ product.name }}"
-                    aria-pressed="true">
-                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-            </button>
-        {% endif %}
+{% extends 'base.html' %}
+{% block title %}{{ product.name }}{% endblock %}
 
-        {% for image in product.images.all|slice:':5' %}
-            <button type="button"
-                    class="detail-thumb"
-                    data-product-image
-                    data-full-image="{{ image.image.url }}"
-                    data-alt="{{ product.name }}"
-                    aria-pressed="false">
-                <img src="{{ image.image.url }}" alt="{{ product.name }}">
-            </button>
-        {% endfor %}
-    </div>
-
-    <div class="detail-main-image product-image-frame product-image-frame-tall">
-        {% if product.main_image %}
-            <img id="mainProductImage" src="{{ product.main_image.url }}" alt="{{ product.name }}">
-        {% elif product.images.first %}
-            <img id="mainProductImage" src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
-        {% else %}
-            <div class="empty-image big-empty">NO IMAGE</div>
-        {% endif %}
-    </div>
-
-    <div class="detail-info-panel">
-        <h1>{{ product.name|upper }}</h1>
-
-        <div class="detail-price">
-            {{ product.get_discounted_price|floatformat:0 }} РУБ
+{% block content %}
+<section class="product-detail-page">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{% url 'home' %}">ГЛАВНАЯ</a>
+            <span>/</span>
+            <a href="{% url 'product_list' %}">КАТАЛОГ</a>
+            <span>/</span>
+            <span>{{ product.name|upper }}</span>
         </div>
 
-        {% if product.discount %}
-            <div class="detail-old-price">
-                {{ product.price|floatformat:0 }} РУБ
-            </div>
-        {% endif %}
-
-        <label for="product-size">Размер</label>
-        <select id="product-size" class="detail-select">
-            {% for variant in product.variants.all %}
-                {% if variant.stock > 0 %}
-                    <option>{{ variant.size.name }}</option>
+        <div class="detail-layout">
+            <div class="detail-thumbs" aria-label="Фотографии товара">
+                {% if product.main_image %}
+                    <button type="button"
+                            class="detail-thumb active"
+                            data-product-image
+                            data-full-image="{{ product.main_image.url }}"
+                            data-alt="{{ product.name }}"
+                            aria-pressed="true">
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                    </button>
                 {% endif %}
-            {% empty %}
-                <option>46-50 L</option>
-            {% endfor %}
-        </select>
 
-        <label>Цвет</label>
-        <div class="color-row detail-colors" aria-hidden="true">
-            <i style="background:#efe6da"></i>
-            <i style="background:#dbc7b0"></i>
-            <i style="background:#121212"></i>
-        </div>
+                {% for image in product.images.all|slice:':5' %}
+                    <button type="button"
+                            class="detail-thumb"
+                            data-product-image
+                            data-full-image="{{ image.image.url }}"
+                            data-alt="{{ product.name }}"
+                            aria-pressed="false">
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                    </button>
+                {% endfor %}
+            </div>
 
-        <div class="stock-line">
-            В наличии:
-            <span>{% if product.stock > 0 %}Есть{% else %}Нет{% endif %}</span>
-        </div>
+            <div class="detail-main-image product-image-frame product-image-frame-tall">
+                {% if product.main_image %}
+                    <img id="mainProductImage" src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                {% elif product.images.first %}
+                    <img id="mainProductImage" src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <div class="empty-image big-empty">NO IMAGE</div>
+                {% endif %}
+            </div>
 
-        <a href="{% url 'cart_add' product.id %}" class="detail-btn green-btn">
-            ДОБАВИТЬ В КОРЗИНУ
-        </a>
+            <aside class="detail-info-panel">
+                <h1>{{ product.name|upper }}</h1>
 
-        <a href="#" class="detail-btn orange-btn">
-            ♡ В ИЗБРАННОЕ
-        </a>
+                <div class="detail-price">
+                    {{ product.get_discounted_price|floatformat:0 }} РУБ
+                </div>
 
-        <div class="detail-description">
-            {{ product.description|linebreaksbr }}
-        </div>
+                {% if product.discount %}
+                    <div class="detail-old-price">
+                        {{ product.price|floatformat:0 }} РУБ
+                    </div>
+                {% endif %}
 
-        <div class="detail-service-row">
-            <div><strong>Доставка</strong><br>1-3 дня</div>
-            <div><strong>Возврат</strong><br>14 дней</div>
-            <div><strong>Оплата</strong><br>при получении</div>
+                <label for="product-size">Размер</label>
+                <select id="product-size" class="detail-select">
+                    {% for variant in product.variants.all %}
+                        {% if variant.stock > 0 %}
+                            <option>{{ variant.size.name }}</option>
+                        {% endif %}
+                    {% empty %}
+                        <option>46-50 L</option>
+                    {% endfor %}
+                </select>
+
+                <label>Цвет</label>
+                <div class="color-row detail-colors" aria-hidden="true">
+                    <i style="background:#efe6da"></i>
+                    <i style="background:#dbc7b0"></i>
+                    <i style="background:#121212"></i>
+                </div>
+
+                <div class="stock-line">
+                    В наличии:
+                    <span>{% if product.stock > 0 %}Есть{% else %}Нет{% endif %}</span>
+                </div>
+
+                <a href="{% url 'cart_add' product.id %}" class="detail-btn green-btn">
+                    ДОБАВИТЬ В КОРЗИНУ
+                </a>
+
+                <a href="#" class="detail-btn orange-btn">
+                    ♡ В ИЗБРАННОЕ
+                </a>
+
+                <div class="detail-description">
+                    {{ product.description|linebreaksbr }}
+                </div>
+
+                <div class="detail-service-row">
+                    <div><strong>Доставка</strong><br>1-3 дня</div>
+                    <div><strong>Возврат</strong><br>14 дней</div>
+                    <div><strong>Оплата</strong><br>при получении</div>
+                </div>
+            </aside>
         </div>
     </div>
-</div>
+</section>
+{% endblock %}

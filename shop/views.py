@@ -47,24 +47,14 @@ def export_order_pdf_view(request, order_id):
     return response
 
 def home(request):
-    latest_products = Product.objects.order_by('-created_at')[:5]
-    # Количество товаров в категории "Hoodies"
-    hoodies_count = Product.objects.filter(category__name='Hoodies').count()
-    # Есть ли дорогие товары (>10000)
-    expensive_exists = Product.objects.filter(price__gt=10000).exists()
+    products = Product.objects.select_related('category', 'brand').exclude(price=0).order_by('-created_at')
 
-    stats = Product.objects.aggregate(
-        avg_price=Avg('price'),
-        max_price=Max('price'),
-        min_price=Min('price')
-    )
-    products = Product.objects.order_by('-created_at')
+    hero_product = products.filter(main_image__isnull=False).exclude(main_image='').first()
+    products_with_images = products.filter(main_image__isnull=False).exclude(main_image='')[:12]
 
     return render(request, 'shop/home.html', {
-        'products': products,
-        'latest_products': latest_products,
-        'hoodies_count': hoodies_count,
-        'expensive_exists': expensive_exists,
+        'products': products_with_images,
+        'hero_product': hero_product,
     })
 
 def export_order_pdf_view(request, order_id):
@@ -92,7 +82,6 @@ def _gender_filter(products, value):
 
     return products.filter(query)
 
-@cache_page(60 * 15)  # 15 минут
 def product_list(request):
     products = Product.objects.select_related('category', 'brand').prefetch_related('variants__size').exclude(price=0)
 
@@ -100,6 +89,7 @@ def product_list(request):
     q = request.GET.get('q', '').strip()
     brand = request.GET.get('brand', '').strip()
     size = request.GET.get('size', '').strip()
+    color = request.GET.get('color', '').strip()
     discount = request.GET.get('discount', '').strip()
     min_price = request.GET.get('min_price', '').strip()
     max_price = request.GET.get('max_price', '').strip()
@@ -108,54 +98,39 @@ def product_list(request):
     if category in {'women', 'men'}:
         products = _gender_filter(products, category)
     elif category == 'looks':
-        products = products.filter(
-            Q(category__name__icontains='образ') |
-            Q(name__icontains='образ')
-        )
+        products = products.filter(Q(category__name__icontains='образ') | Q(name__icontains='образ'))
     elif category == 'shoes':
-        products = products.filter(
-            Q(category__name__icontains='обув') |
-            Q(name__icontains='обув') |
-            Q(name__icontains='shoe') |
-            Q(name__icontains='sneaker')
-        )
+        products = products.filter(Q(category__name__icontains='обув') | Q(name__icontains='обув') | Q(name__icontains='shoe'))
     elif category == 'accessories':
-        products = products.filter(
-            Q(category__name__icontains='аксесс') |
-            Q(name__icontains='аксесс') |
-            Q(name__icontains='шап') |
-            Q(name__icontains='кеп')
-        )
-    elif category == 'season':
-        products = products.filter(
-            Q(category__name__icontains='сезон') |
-            Q(name__icontains='лет') |
-            Q(name__icontains='зим')
-        )
+        products = products.filter(Q(category__name__icontains='аксесс') | Q(name__icontains='аксесс') | Q(name__icontains='шап') | Q(name__icontains='кеп'))
     elif category:
-        products = products.filter(
-            Q(category__slug=category) |
-            Q(category__name__icontains=category)
-        )
+        products = products.filter(Q(category__slug=category) | Q(category__name__icontains=category))
 
     if q:
-        products = products.filter(
-            Q(name__icontains=q) |
-            Q(description__icontains=q) |
-            Q(sku__icontains=q)
-        )
+        products = products.filter(Q(name__icontains=q) | Q(description__icontains=q) | Q(sku__icontains=q))
 
     if brand:
-        products = products.filter(
-            Q(brand__slug=brand) |
-            Q(brand__name__icontains=brand)
-        )
+        products = products.filter(Q(brand__slug=brand) | Q(brand__name__icontains=brand))
 
     if size:
-        products = products.filter(
-            variants__size__name__iexact=size,
-            variants__stock__gt=0
-        )
+        products = products.filter(variants__size__name__iexact=size, variants__stock__gt=0)
+
+    # В модели нет отдельного поля color, поэтому фильтр ищет цвет по названию/описанию.
+    if color:
+        color_words = {
+            'white': ['бел', 'white'],
+            'beige': ['беж', 'beige'],
+            'black': ['черн', 'black'],
+            'orange': ['оранж', 'orange', 'персик'],
+        }
+
+        color_query = Q()
+        for word in color_words.get(color, [color]):
+            color_query |= Q(name__icontains=word)
+            color_query |= Q(description__icontains=word)
+            color_query |= Q(category__name__icontains=word)
+
+        products = products.filter(color_query)
 
     if discount:
         products = products.filter(discount__gt=0)
@@ -196,17 +171,25 @@ def product_list(request):
     query_params = request.GET.copy()
     query_params.pop('page', None)
 
+    category_labels = {
+        'women': 'ЖЕНЩИНАМ',
+        'men': 'МУЖЧИНАМ',
+        'looks': 'ОБРАЗЫ',
+        'shoes': 'ОБУВЬ',
+        'accessories': 'АКСЕССУАРЫ',
+    }
+
     return render(request, 'shop/product_list.html', {
         'products': products_page,
-        'categories': Category.objects.all(),
         'brands': Brand.objects.all(),
         'current_category': category,
+        'current_category_label': category_labels.get(category, 'КАТАЛОГ'),
         'current_brand': brand,
         'current_size': size,
+        'current_color': color,
         'current_sort': sort,
         'query_params': query_params.urlencode(),
     })
-
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -223,6 +206,19 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def profile(request):
+    profile_products = (
+        Product.objects
+        .filter(main_image__isnull=False)
+        .exclude(main_image='')
+        .order_by('-created_at')[:3]
+    )
+
+    return render(request, 'shop/profile.html', {
+        'profile_products': profile_products,
+    })
 
 @staff_member_required
 def product_create(request):

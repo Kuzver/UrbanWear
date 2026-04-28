@@ -48,10 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem('visionMode', mode);
 
         document.querySelectorAll('[data-vision-mode]').forEach(function (button) {
-            button.setAttribute(
-                'aria-pressed',
-                button.dataset.visionMode === mode ? 'true' : 'false'
-            );
+            button.setAttribute('aria-pressed', button.dataset.visionMode === mode ? 'true' : 'false');
         });
     }
 
@@ -67,7 +64,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const visionPanel = document.getElementById('visionPanel');
 
     if (visionToggle && visionPanel) {
-        visionToggle.addEventListener('click', function () {
+        visionToggle.addEventListener('click', function (event) {
+            event.stopPropagation();
             const opened = visionPanel.classList.toggle('open');
             visionToggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
         });
@@ -77,23 +75,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const menu = document.getElementById('catalog-menu');
 
     if (burger && menu) {
-        burger.addEventListener('click', function () {
+        burger.addEventListener('click', function (event) {
+            event.stopPropagation();
             const isOpen = menu.classList.toggle('open');
             burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
-
-        document.addEventListener('click', function (event) {
-            if (!menu.contains(event.target) && !burger.contains(event.target)) {
-                menu.classList.remove('open');
-                burger.setAttribute('aria-expanded', 'false');
-            }
-
-            if (visionPanel && visionToggle && !visionPanel.contains(event.target) && !visionToggle.contains(event.target)) {
-                visionPanel.classList.remove('open');
-                visionToggle.setAttribute('aria-expanded', 'false');
-            }
-        });
     }
+
+    document.addEventListener('click', function (event) {
+        if (menu && burger && !menu.contains(event.target) && !burger.contains(event.target)) {
+            menu.classList.remove('open');
+            burger.setAttribute('aria-expanded', 'false');
+        }
+
+        if (visionPanel && visionToggle && !visionPanel.contains(event.target) && !visionToggle.contains(event.target)) {
+            visionPanel.classList.remove('open');
+            visionToggle.setAttribute('aria-expanded', 'false');
+        }
+    });
 
     const mainProductImage = document.getElementById('mainProductImage');
 

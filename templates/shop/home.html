@@ -4,18 +4,20 @@
 {% block content %}
 <section class="home-page">
     <div class="container">
-
         <section class="hero-banner">
             <div class="hero-overlay">
                 <div class="hero-text">
-                    <h1>СТИЛЬ<br><span>НА КАЖДЫЙ ДЕНЬ</span></h1>
+                    <h1>
+                        СТИЛЬ<br>
+                        <span>НА КАЖДЫЙ ДЕНЬ</span>
+                    </h1>
                     <p>Актуальная одежда и аксессуары для вашего идеального образа</p>
                     <a href="{% url 'product_list' %}" class="hero-btn">СМОТРЕТЬ КОЛЛЕКЦИЮ</a>
                 </div>
 
                 <div class="hero-image-wrap">
-                    {% if products and products.0.main_image %}
-                        <img src="{{ products.0.main_image.url }}" alt="{{ products.0.name }}">
+                    {% if hero_product and hero_product.main_image %}
+                        <img src="{{ hero_product.main_image.url }}" alt="{{ hero_product.name }}">
                     {% else %}
                         <div class="empty-image big-empty">NO IMAGE</div>
                     {% endif %}
@@ -24,65 +26,132 @@
         </section>
 
         <section class="section-block">
-            <h2 class="section-title green-title">ПОПУЛЯРНЫЕ ТОВАРЫ</h2>
+            <h2 class="section-title green-title">ПОПУЛЯРНЫЕ КАТЕГОРИИ</h2>
+
             <div class="category-grid-four">
-                {% for product in products|slice:":4" %}
-                    <div class="category-card lime-card">
-                        <a href="{{ product.get_absolute_url }}">
-                            {% if product.main_image %}
-                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-                            {% else %}
-                                <div class="empty-image">NO IMAGE</div>
-                            {% endif %}
-                            <span>{{ product.name|upper }}</span>
-                        </a>
-                    </div>
-                {% empty %}
-                    <p>Товары пока не добавлены.</p>
-                {% endfor %}
+                <article class="category-card lime-card">
+                    <a href="{% url 'product_list' %}?category=season">
+                        {% for product in products|slice:":1" %}
+                            <img src="{{ product.main_image.url }}" alt="Лето">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>ЛЕТО</span>
+                    </a>
+                </article>
+
+                <article class="category-card lime-card">
+                    <a href="{% url 'product_list' %}?category=women">
+                        {% for product in products|slice:"1:2" %}
+                            <img src="{{ product.main_image.url }}" alt="Зиму">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>ЗИМУ</span>
+                    </a>
+                </article>
+
+                <article class="category-card lime-card">
+                    <a href="{% url 'product_list' %}?category=shoes">
+                        {% for product in products|slice:"2:3" %}
+                            <img src="{{ product.main_image.url }}" alt="Обувь">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>ОБУВЬ</span>
+                    </a>
+                </article>
+
+                <article class="category-card lime-card">
+                    <a href="{% url 'product_list' %}?category=accessories">
+                        {% for product in products|slice:"3:4" %}
+                            <img src="{{ product.main_image.url }}" alt="Головные уборы">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>ГОЛОВНЫЕ УБОРЫ</span>
+                    </a>
+                </article>
             </div>
         </section>
 
         <section class="section-block">
-            <h2 class="section-title orange-title">НОВИНКИ</h2>
+            <h2 class="section-title orange-title">ТРЕНДЫ ЭТОГО СЕЗОНА</h2>
+
             <div class="trend-grid-two">
-                {% for product in products|slice:":2" %}
-                    <div class="trend-card coral-card">
-                        <a href="{{ product.get_absolute_url }}">
-                            {% if product.main_image %}
-                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-                            {% else %}
-                                <div class="empty-image">NO IMAGE</div>
-                            {% endif %}
-                            <span>{{ product.name|upper }}</span>
-                        </a>
-                    </div>
-                {% empty %}
-                    <p>Нет новых товаров.</p>
-                {% endfor %}
+                <article class="trend-card coral-card">
+                    <a href="{% url 'product_list' %}?category=women">
+                        {% for product in products|slice:"4:5" %}
+                            <img src="{{ product.main_image.url }}" alt="Верх">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>ВЕРХ</span>
+                    </a>
+                </article>
+
+                <article class="trend-card coral-card">
+                    <a href="{% url 'product_list' %}?category=shoes">
+                        {% for product in products|slice:"5:6" %}
+                            <img src="{{ product.main_image.url }}" alt="Низ">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>НИЗ</span>
+                    </a>
+                </article>
             </div>
         </section>
 
         <section class="style-showcase">
             <h2>КОМПЛЕКТЫ В СТИЛЕ</h2>
+
             <div class="style-grid-four">
-                {% for product in products|slice:":4" %}
-                    <div class="style-card">
-                        <a href="{{ product.get_absolute_url }}">
-                            {% if product.main_image %}
-                                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
-                            {% else %}
-                                <div class="empty-image">NO IMAGE</div>
-                            {% endif %}
-                            <span>{{ product.name|upper }}</span>
-                        </a>
-                    </div>
-                {% empty %}
-                    <p>Нет товаров для показа.</p>
-                {% endfor %}
+                <article class="style-card">
+                    <a href="{% url 'product_list' %}?category=looks">
+                        {% for product in products|slice:"6:7" %}
+                            <img src="{{ product.main_image.url }}" alt="Деловая">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>ДЕЛОВАЯ</span>
+                    </a>
+                </article>
+
+                <article class="style-card">
+                    <a href="{% url 'product_list' %}?category=looks">
+                        {% for product in products|slice:"7:8" %}
+                            <img src="{{ product.main_image.url }}" alt="Спортивная">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>СПОРТИВНАЯ</span>
+                    </a>
+                </article>
+
+                <article class="style-card">
+                    <a href="{% url 'product_list' %}?category=looks">
+                        {% for product in products|slice:"8:9" %}
+                            <img src="{{ product.main_image.url }}" alt="Кэжуал">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>КЭЖУАЛ</span>
+                    </a>
+                </article>
+
+                <article class="style-card">
+                    <a href="{% url 'product_list' %}?category=looks">
+                        {% for product in products|slice:"9:10" %}
+                            <img src="{{ product.main_image.url }}" alt="Urban">
+                        {% empty %}
+                            <div class="empty-image">NO IMAGE</div>
+                        {% endfor %}
+                        <span>URBAN</span>
+                    </a>
+                </article>
             </div>
         </section>
-
     </div>
 </section>
 {% endblock %}

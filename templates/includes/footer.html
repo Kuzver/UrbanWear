@@ -1,35 +1,44 @@
 <footer class="site-footer">
-    <div class="container">
+    <div class="container footer-inner">
         <div class="footer-top">
-            <section class="footer-col" aria-labelledby="footer-catalog">
-                <h2 id="footer-catalog">Каталог</h2>
-                <a href="{% url 'product_list' %}?category=women">Женщинам</a>
-                <a href="{% url 'product_list' %}?category=men">Мужчинам</a>
-                <a href="{% url 'product_list' %}">Все товары</a>
+            <section class="footer-col">
+                <h2>О НАС</h2>
+                <a href="#">UrbanWear</a>
+                <a href="#">Работа у нас</a>
+                <a href="#">Сертификат</a>
+                <a href="#">Фото и видео</a>
+                <a href="#">Пресса</a>
             </section>
 
-            <section class="footer-col" aria-labelledby="footer-user">
-                <h2 id="footer-user">Покупателю</h2>
-                <a href="{% url 'cart' %}">Корзина</a>
-                <a href="{% url 'login' %}">Вход</a>
-                <a href="{% url 'register' %}">Регистрация</a>
+            <section class="footer-col">
+                <h2>ПОКУПАТЕЛЯМ</h2>
+                <a href="#">Вопросы и ответы</a>
+                <a href="#">TRADE IN обмен вещей</a>
+                <a href="#">Публичная оферта</a>
+                <a href="#">Политика конфиденциальности</a>
             </section>
 
-            <section class="footer-col" aria-labelledby="footer-info">
-                <h2 id="footer-info">Информация</h2>
-                <p>UrbanWear — магазин одежды и аксессуаров.</p>
+            <section class="footer-col">
+                <h2>СВЯЗАТЬСЯ С НАМИ</h2>
+                <p>ВКонтакте</p>
+                <p>MAX</p>
+                <p>8 999 999 99 99</p>
+                <p>Ежедневно с 9:00 до 20:00</p>
             </section>
 
-            <section class="footer-col" aria-labelledby="footer-contacts">
-                <h2 id="footer-contacts">Контакты</h2>
-                <p>Email: info@urbanwear.local</p>
-                <button class="footer-btn" type="button">Связаться</button>
+            <section class="footer-col footer-subscribe">
+                <h2>БУДЬ В КУРСЕ НОВОСТЕЙ</h2>
+                <p>А также первыми узнавайте о новых партиях, закрытых акциях и временных скидках.</p>
+                <form>
+                    <input type="email" placeholder="Ваш e-mail">
+                    <button type="submit">ПОДПИСАТЬСЯ</button>
+                </form>
             </section>
         </div>
 
         <div class="footer-bottom">
-            <div class="footer-brand" aria-label="UrbanWear">UrbanWear</div>
-            <div class="footer-bag" aria-hidden="true">👜</div>
+            <div class="footer-brand">UrbanWear</div>
+            <div class="footer-bag">▱</div>
         </div>
     </div>
 </footer>
