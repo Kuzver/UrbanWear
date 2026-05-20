@@ -3,6 +3,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from openpyxl.xml.constants import XLSX
+from reportlab.lib.pagesizes import A4
 
 from . import models
 from .models import (
@@ -11,32 +13,16 @@ from .models import (
 )
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
+from simple_history.admin import SimpleHistoryAdmin
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+from simple_history.admin import SimpleHistoryAdmin
+from import_export.formats import base_formats
 
-def export_order_pdf(modeladmin, request, queryset):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="orders.pdf"'
-
-    p = canvas.Canvas(response)
-    y = 800
-
-    p.setFont("Helvetica-Bold", 14)
-    p.drawString(100, y, "Список заказов")
-    y -= 30
-
-    p.setFont("Helvetica", 11)
-
-    for order in queryset:
-        p.drawString(100, y, f"Заказ #{order.id} | Пользователь: {order.user} | Сумма: {order.total_amount}")
-        y -= 20
-
-        if y < 50:
-            p.showPage()
-            y = 800
-            p.setFont("Helvetica", 11)
-
-    p.showPage()
-    p.save()
-    return response
+from django.contrib import admin
+from .models import Product, Order
 
 # ---------- Category ----------
 @admin.register(Category)
@@ -81,7 +67,7 @@ class ProductVariantInline(admin.TabularInline):
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ['name', 'sku', 'price', 'discounted_price', 'stock', 'category', 'brand', 'created_at']
     list_filter = ['category', 'brand', 'created_at']
     search_fields = ['name', 'sku']
@@ -124,8 +110,10 @@ class OrderItemInline(admin.TabularInline):
     verbose_name_plural = 'Товары'
 
 
+
+
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ['id', 'user', 'status', 'total_amount', 'created_at']
     list_filter = ['status', 'created_at']
     search_fields = ['id', 'user__username', 'user__email']
@@ -142,6 +130,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('delivery_address', 'city', 'postal_code', 'contact_phone')
         }),
     )
+    export_formats = [base_formats.XLSX]
     actions = ['mark_as_shipped', 'mark_as_delivered', 'export_order_pdf', 'mark_as', 'mark_delivered']
 
     @admin.action(description='Отметить как отправленные')
@@ -159,6 +148,40 @@ class OrderAdmin(admin.ModelAdmin):
     @admin.action(description='Отметить как измененные')
     def mark_delivered(self, request, queryset):
         queryset.update(status='updated')
+
+    @admin.action(description='Экспортировать выбранные заказы в PDF')
+    def export_order_pdf(self, request, queryset):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="orders.pdf"'
+
+        pdf = canvas.Canvas(response, pagesize=A4)
+        width, height = A4
+
+        y = height - 50
+        pdf.setFont("Helvetica-Bold", 14)
+        pdf.drawString(40, y, "Список заказов")
+        y -= 30
+
+        pdf.setFont("Helvetica", 10)
+
+        for order in queryset:
+            line = (
+                f"Заказ #{order.id} | "
+                f"Пользователь: {order.user} | "
+                f"Статус: {order.status} | "
+                f"Сумма: {order.total_amount} | "
+                f"Дата: {order.created_at.strftime('%d.%m.%Y %H:%M')}"
+            )
+            pdf.drawString(40, y, line)
+            y -= 20
+
+            if y < 50:
+                pdf.showPage()
+                pdf.setFont("Helvetica", 10)
+                y = height - 50
+
+        pdf.save()
+        return response
 
 
 # ---------- Size ----------
@@ -201,3 +224,71 @@ class PromoCodeAdmin(admin.ModelAdmin):
         ('Срок действия', {'fields': ('start_date', 'end_date')}),
         ('Ограничения', {'fields': ('max_uses', 'used_count')}),
     )
+
+class ProductResource(resources.ModelResource):
+    class Meta:
+        model = Product
+        fields = (
+            'id',
+            'name',
+            'slug',
+            'price',
+            'category',
+            'brand',
+        )
+        export_order = (
+            'id',
+            'name',
+            'slug',
+            'price',
+            'category',
+            'brand',
+        )
+
+
+# shop/resources.py
+
+from import_export import resources, fields
+from .models import Order
+
+
+class OrderResource(resources.ModelResource):
+    user_name = fields.Field(column_name='Пользователь')
+    total = fields.Field(column_name='Сумма')
+
+    class Meta:
+        model = Order
+        fields = (
+            'id',
+            'user_name',
+            'created_at',
+            'status',
+            'total',
+        )
+        export_order = (
+            'id',
+            'user_name',
+            'created_at',
+            'status',
+            'total',
+        )
+
+    def dehydrate_user_name(self, order):
+        if hasattr(order, 'user') and order.user:
+            return str(order.user)
+        return ''
+
+    def dehydrate_total(self, order):
+        if hasattr(order, 'get_total_price'):
+            return order.get_total_price()
+
+        if hasattr(order, 'get_total'):
+            return order.get_total()
+
+        if hasattr(order, 'total_price'):
+            return order.total_price
+
+        if hasattr(order, 'total'):
+            return order.total
+
+        return ''

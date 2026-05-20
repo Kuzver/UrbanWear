@@ -274,18 +274,47 @@ def order_detail(request, order_id):
     )
     return render(request, 'shop/order_detail.html', {'order': order})
 
+from django.db.models import Q
+from django.db.models.functions import Lower
+
 def product_search(request):
-    query = request.GET.get('q')
-    products = Product.objects.all()
+    query = request.GET.get('q', '').strip()
+    all_products = Product.objects.select_related('category', 'brand').all()
 
     if query:
-        products = products.filter(
-            Q(name__icontains=query) |
-            Q(description__icontains=query) |
-            Q(name__contains=query)
-        )
+        query_lower = query.lower()
+        filtered_products = [
+            product for product in all_products
+            if query_lower in (product.name or '').lower()
+            or query_lower in (product.description or '').lower()
+            or query_lower in ((product.category.name if product.category else '')).lower()
+            or query_lower in ((product.brand.name if product.brand else '')).lower()
+        ]
+    else:
+        filtered_products = []
 
-    return render(request, 'shop/product_list.html', {'products': products})
+    paginator = Paginator(filtered_products, 9)
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
+
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        query_params.pop('page')
+    query_params = query_params.urlencode()
+
+    return render(request, 'shop/product_list.html', {
+        'products': products,
+        'query': query,
+        'is_search': True,
+        'brands': Brand.objects.all(),
+        'current_category': '',
+        'current_category_label': '',
+        'current_size': '',
+        'current_color': '',
+        'current_brand': '',
+        'current_sort': 'popular',
+        'query_params': query_params,
+    })
 
 @login_required
 def add_review(request, product_slug):
