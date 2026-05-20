@@ -372,7 +372,7 @@ def upload_product_images(request, slug):
 def get_cached_data():
     data = cache.get('my_key')
     if not data:
-        data = increase_prices()
+        data = some_expensive_operation()
         cache.set('my_key', data, 60*5)
     return data
 
