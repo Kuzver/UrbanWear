@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.conf import settings
 from django.contrib.auth.models import User
+from simple_history.models import HistoricalRecords
 
 
 class Category(models.Model):
@@ -83,6 +84,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='дата обновления')
 
     objects = ProductManager()
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Товар'
@@ -154,6 +156,7 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20, verbose_name='индекс', null=True)
     contact_phone = models.CharField(max_length=20, verbose_name='телефон', null=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='итоговая сумма', null=True)
+    history = HistoricalRecords()
 
     products = models.ManyToManyField(
         Product,

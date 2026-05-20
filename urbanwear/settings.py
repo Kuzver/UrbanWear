@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',          # Django REST Framework
     'shop.apps.ShopConfig',
     'debug_toolbar',
+    'simple_history',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'urbanwear.urls'

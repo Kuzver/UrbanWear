@@ -1937,76 +1937,6 @@ body.vision-mono .balance-button {
     }
 }
 
-@media (max-width: 760px) {
-    body {
-        font-size: 16px;
-    }
-
-    .container {
-        max-width: calc(100% - 20px);
-    }
-
-    .top-nav {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-        width: 100%;
-    }
-
-    .top-nav a {
-        padding: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        text-align: center;
-    }
-
-    .category-grid-four,
-    .style-grid-four,
-    .catalog-products-grid,
-    .trend-grid-two,
-    .footer-top,
-    .profile-orders-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-    }
-
-    .hero-overlay {
-        grid-template-columns: 1fr;
-        max-height: none;
-    }
-
-    .hero-image-wrap {
-        min-height: 280px;
-        max-height: 340px;
-    }
-
-    .hero-text {
-        padding: 28px 20px;
-    }
-
-    .catalog-topbar {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .catalog-sort-select {
-        width: 100%;
-    }
-
-    .cart-item-design {
-        grid-template-columns: 90px minmax(0, 1fr);
-    }
-
-    .cart-qty-box,
-    .cart-icons-box {
-        grid-column: 2;
-        justify-content: flex-start;
-    }
-
-    .profile-tabs {
-        flex-direction: column;
-    }
-}
-
 @media (max-width: 520px) {
     .container {
         max-width: calc(100% - 16px);
@@ -2066,5 +1996,189 @@ body.vision-mono .balance-button {
     .detail-service-row {
         grid-template-columns: 1fr;
         text-align: left;
+    }
+}
+/* ===== FIX: stable header navigation ===== */
+
+/* Обычная ширина экрана */
+.header-bottom {
+    height: 44px !important;
+    min-height: 44px !important;
+    overflow: visible !important;
+}
+
+.header-nav-row {
+    height: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 24px !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    background: transparent !important;
+}
+
+.burger-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    flex: 0 0 32px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #777 !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+}
+
+.top-nav {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: clamp(28px, 5vw, 76px) !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+}
+
+.top-nav a {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 0 !important;
+    height: 44px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #aaa !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+/* Убираем старое мобильное поведение, из-за которого пункты становились огромными кнопками */
+@media (max-width: 760px) {
+    .header-bottom {
+        height: auto !important;
+        min-height: 44px !important;
+        padding: 0 !important;
+    }
+
+    .header-nav-row {
+        height: auto !important;
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 6px 0 !important;
+        overflow: visible !important;
+    }
+
+    .top-nav {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 18px !important;
+        width: auto !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        white-space: nowrap !important;
+        scrollbar-width: none;
+    }
+
+    .top-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .top-nav a {
+        flex: 0 0 auto !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 0 4px !important;
+        border: 0 !important;
+        font-size: 13px !important;
+        line-height: 1 !important;
+        text-align: center !important;
+    }
+
+    .burger-btn {
+        flex: 0 0 32px !important;
+    }
+}
+
+/* Очень узкий экран */
+@media (max-width: 520px) {
+    .header-nav-row {
+        gap: 10px !important;
+    }
+
+    .top-nav {
+        gap: 14px !important;
+    }
+
+    .top-nav a {
+        font-size: 12px !important;
+    }
+}
+/* ===== FIX: меню слабовидящих не выходит за экран ===== */
+
+.vision-dropdown {
+    position: relative !important;
+}
+
+.vision-panel {
+    position: absolute !important;
+    top: 44px !important;
+    right: 0 !important;
+    left: auto !important;
+    width: 210px !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 10px !important;
+    background: #222 !important;
+    border: 1px solid #555 !important;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, .45) !important;
+    z-index: 99999 !important;
+}
+
+.vision-panel.open {
+    display: grid !important;
+    gap: 8px !important;
+}
+
+.vision-panel button {
+    width: 100% !important;
+    min-height: 36px !important;
+    padding: 7px 10px !important;
+    background: #111 !important;
+    border: 1px solid #666 !important;
+    color: #fff !important;
+    text-align: left !important;
+    font-size: 13px !important;
+}
+
+/* На маленьком экране меню становится фиксированным и влезает в экран */
+@media (max-width: 760px) {
+    .vision-panel {
+        position: fixed !important;
+        top: 76px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+}
+
+/* На совсем узком экране чуть ниже, чтобы не налезало на логотип/поиск */
+@media (max-width: 520px) {
+    .vision-panel {
+        top: 92px !important;
+        left: 10px !important;
+        right: 10px !important;
     }
 }
