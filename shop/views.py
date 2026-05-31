@@ -28,7 +28,7 @@ from .models import ProductImage
 from django.core.cache import cache
 from django.contrib import messages
 from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -38,6 +38,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ProductForm, ProductImageUploadForm, ReviewForm
 from .models import Brand, Category, Order, Product, ProductImage
+
 
 def export_order_pdf_view(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -226,24 +227,28 @@ def product_create(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            product = form.save(commit=False)  # Создаём объект, но не сохраняем в БД
-            # Модифицируем объект перед сохранением
+            product = form.save(commit=False)
             product.name = f"(NEW) {product.name}"
-            product.save()  # Теперь сохраняем
+            product.save()
             messages.success(request, f'Товар "{product.name}" успешно создан.')
             return HttpResponseRedirect(product.get_absolute_url())
     else:
         form = ProductForm()
-    return render(request, 'shop/product_form.html', {'form': form, 'title': 'Создание товара'})
 
-@staff_member_required
+    return render(request, 'shop/product_form.html', {
+        'form': form,
+        'title': 'Создание товара'
+    })
+
+@user_passes_test(lambda user: user.is_staff, login_url='login')
 def product_update(request, slug):
     product = get_object_or_404(Product, slug=slug)
 
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
+
         if form.is_valid():
-            product = form.save(commit=True)
+            product = form.save()
             messages.success(request, f'Товар "{product.name}" успешно обновлён.')
             return redirect('product_detail', slug=product.slug)
     else:
@@ -252,18 +257,22 @@ def product_update(request, slug):
     return render(request, 'shop/product_form.html', {
         'form': form,
         'title': 'Редактирование товара',
-        'product': product
+        'product': product,
     })
 
 @staff_member_required
 def product_delete(request, slug):
-    """Удаление товара"""
     product = get_object_or_404(Product, slug=slug)
+
     if request.method == 'POST':
+        product_name = product.name
         product.delete()
-        messages.success(request, 'Товар удалён.')
+        messages.success(request, f'Товар "{product_name}" удалён.')
         return redirect('product_list')
-    return redirect('product_list')
+
+    return render(request, 'shop/product_confirm_delete.html', {
+        'product': product,
+    })
 
 def order_detail(request, order_id):
     # Оптимизация: загружаем связанного пользователя (ForeignKey) через JOIN
@@ -319,24 +328,24 @@ def product_search(request):
 @login_required
 def add_review(request, product_slug):
     product = get_object_or_404(Product, slug=product_slug)
+
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
-            text = form.cleaned_data.get('text')
-            rating = form.cleaned_data.get('rating')
-
             review = form.save(commit=False)
             review.user = request.user
             review.product = product
-            review.text = text
-            review.rating = rating
             review.save()
 
             messages.success(request, 'Спасибо за ваш отзыв!')
             return redirect('product_detail', slug=product.slug)
     else:
         form = ReviewForm()
-    return render(request, 'shop/add_review.html', {'form': form, 'product': product})
+
+    return render(request, 'shop/add_review.html', {
+        'form': form,
+        'product': product,
+    })
 
 @staff_member_required
 def add_product_images(request, product_slug):
@@ -368,7 +377,9 @@ def increase_prices(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(
-        Product.objects.select_related('category', 'brand').prefetch_related('images', 'variants', 'reviews'),
+        Product.objects
+        .select_related('category', 'brand')
+        .prefetch_related('images', 'variants__size', 'reviews__user'),
         slug=slug
     )
 
@@ -380,13 +391,20 @@ def product_detail(request, slug):
 
     request.session['last_viewed_product'] = product.name
 
+    reviews = product.reviews.all()
+    review_stats = reviews.aggregate(average_rating=Avg('rating'))
+
     return render(request, 'shop/product_detail.html', {
         'product': product,
+        'reviews': reviews,
+        'reviews_count': reviews.count(),
+        'average_rating': review_stats['average_rating'],
     })
 
 @staff_member_required
 def upload_product_images(request, slug):
     product = get_object_or_404(Product, slug=slug)
+
     if request.method == 'POST':
         form = ProductImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -396,8 +414,11 @@ def upload_product_images(request, slug):
             return redirect('product_detail', slug=product.slug)
     else:
         form = ProductImageUploadForm()
-    return render(request, 'shop/upload_images.html', {'form': form, 'product': product})
 
+    return render(request, 'shop/upload_images.html', {
+        'form': form,
+        'product': product
+    })
 def get_cached_data():
     data = cache.get('my_key')
     if not data:

@@ -1,28 +1,40 @@
 {% extends 'base.html' %}
 
+{% block title %}Отзыв о товаре {{ product.name }}{% endblock %}
+
 {% block content %}
-<h2>Оставить отзыв на товар "{{ product.name }}"</h2>
+<section class="review-page">
+    <div class="review-box">
+        <h1 class="review-title">
+            Оставить отзыв<br>
+            <span>{{ product.name }}</span>
+        </h1>
 
-<form method="post" novalidate>
-    {% csrf_token %}
+        <form method="post" class="review-form" novalidate>
+            {% csrf_token %}
 
-    {% for field in form %}
-        <div class="field-wrapper">
-            {{ field.label_tag }}
-            {{ field }}
+            {% for field in form %}
+                <div class="field-wrapper">
+                    {{ field.label_tag }}
+                    {{ field }}
 
-            {% if field.help_text %}
-                <p class="help">{{ field.help_text }}</p>
-            {% endif %}
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text }}</p>
+                    {% endif %}
 
-            {% if field.errors %}
-                <div class="error">
-                    {{ field.errors }}
+                    {% if field.errors %}
+                        <div class="field-errors">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
                 </div>
-            {% endif %}
-        </div>
-    {% endfor %}
+            {% endfor %}
 
-    <button type="submit">Отправить</button>
-</form>
+            <div class="review-actions">
+                <button type="submit" class="review-btn">Отправить отзыв</button>
+                <a href="{{ product.get_absolute_url }}" class="review-cancel-link">Вернуться к товару</a>
+            </div>
+        </form>
+    </div>
+</section>
 {% endblock %}

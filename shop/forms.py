@@ -8,14 +8,17 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['rating', 'comment']
         widgets = {
-            'comment': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Ваш отзыв..----.'}),
+            'comment': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Расскажите, понравился ли товар, подошёл ли размер и качество.'
+            }),
         }
         labels = {
             'rating': 'Оценка',
             'comment': 'Комментарий',
         }
         help_texts = {
-            'rating': 'Поставьте оценку от 1 до 5 ----',
+            'rating': 'Поставьте оценку от 1 до 5.',
         }
         error_messages = {
             'rating': {
@@ -58,7 +61,6 @@ class ProductForm(forms.ModelForm):
             'slug': 'Если не заполнить, slug сгенерируется автоматически.',
             'main_image': 'Это фото будет показано в каталоге, корзине и карточке товара.',
         }
-
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True

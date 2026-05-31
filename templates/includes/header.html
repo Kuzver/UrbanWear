@@ -67,6 +67,10 @@
                 <a href="{% url 'product_list' %}?category=looks">ОБРАЗЫ</a>
                 <a href="{% url 'product_list' %}?category=shoes">ОБУВЬ</a>
                 <a href="{% url 'product_list' %}?discount=1">АКЦИИ</a>
+
+                {% if user.is_staff %}
+                    <a href="{% url 'product_create' %}">ДОБАВИТЬ ТОВАР</a>
+                {% endif %}
             </nav>
         </div>
     </div>

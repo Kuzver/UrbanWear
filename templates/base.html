@@ -10,11 +10,23 @@
 <body>
     <a class="skip-link" href="#main-content">Перейти к содержимому</a>
 
-    {% include 'includes/header.html' %}
+        {% include 'includes/header.html' %}
+
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <main id="main-content" class="site-main">
         {% block content %}{% endblock %}
     </main>
+
+    {% include 'includes/footer.html' %}
 
     {% include 'includes/footer.html' %}
 <script>

@@ -1156,7 +1156,119 @@ textarea:focus {
     font-size: 12px;
     text-align: center;
 }
+.product-reviews {
+    margin-top: 34px;
+    padding: 26px;
+    background: #232323;
+    border: 1px solid var(--line-soft);
+}
 
+.reviews-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.reviews-header h2 {
+    margin-bottom: 8px;
+    color: var(--white);
+    font-family: 'PT Serif', Georgia, serif;
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.reviews-summary {
+    color: var(--text-soft);
+    font-size: 14px;
+}
+
+.reviews-summary strong {
+    color: var(--lime);
+}
+
+.reviews-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    padding: 10px 16px;
+    border: 2px solid var(--lime);
+    color: var(--lime);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.reviews-add-btn:hover {
+    background: var(--lime);
+    color: var(--black);
+}
+
+.reviews-list {
+    display: grid;
+    gap: 14px;
+}
+
+.review-card,
+.reviews-empty {
+    padding: 18px;
+    background: #2d2d2d;
+    border: 1px solid var(--line);
+}
+
+.review-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.review-author {
+    display: block;
+    color: var(--white);
+    font-size: 16px;
+}
+
+.review-card time {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.review-rating {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    background: var(--lime);
+    color: var(--black);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.review-comment,
+.reviews-empty {
+    color: #d0d0d0;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.review-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.review-cancel-link {
+    color: var(--text-soft);
+    font-size: 15px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
 /* CART */
 
 .cart-title {
@@ -2180,5 +2292,329 @@ body.vision-mono .balance-button {
         top: 92px !important;
         left: 10px !important;
         right: 10px !important;
+    }
+}
+/* PRODUCT FRONTEND MANAGEMENT */
+
+.messages-container {
+    width: 1440px;
+    max-width: calc(100% - 44px);
+    margin: 18px auto 0;
+}
+
+.message {
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.message-success {
+    border-color: var(--lime);
+    color: var(--lime);
+}
+
+.message-error {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.message-warning {
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
+.product-admin-panel {
+    margin: 18px 0;
+    padding: 16px;
+    background: #1b1b1b;
+    border: 1px solid var(--line-soft);
+}
+
+.product-admin-title {
+    margin-bottom: 12px;
+    color: var(--lime);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.product-admin-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    margin-top: 8px;
+    padding: 9px 12px;
+    border: 1px solid var(--line-soft);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.product-admin-link:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+}
+
+.product-admin-link.danger {
+    color: var(--danger);
+}
+
+.product-admin-link.danger:hover {
+    border-color: var(--danger);
+    background: rgba(255, 139, 107, 0.08);
+}
+
+.product-edit-page {
+    padding: 34px 0 58px;
+}
+
+.product-edit-card,
+.product-delete-card {
+    padding: 30px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    box-shadow: var(--shadow);
+}
+
+.product-edit-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.product-edit-header h1,
+.product-delete-card h1 {
+    margin-bottom: 10px;
+    color: var(--white);
+    font-family: 'PT Serif', Georgia, serif;
+    font-size: 36px;
+    line-height: 1.15;
+}
+
+.product-edit-header p,
+.product-delete-card p {
+    max-width: 760px;
+    color: var(--text-soft);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.product-edit-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    padding: 10px 14px;
+    border: 2px solid var(--lime);
+    color: var(--lime);
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.product-edit-back:hover {
+    background: var(--lime);
+    color: var(--black);
+}
+
+.product-edit-form {
+    display: grid;
+    gap: 22px;
+}
+
+.product-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.product-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.product-form-field-wide {
+    grid-column: 1 / -1;
+}
+
+.product-form-field label {
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.product-input,
+.product-form-field input,
+.product-form-field select,
+.product-form-field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 14px;
+    background: #d9d9d9;
+    border: 2px solid transparent;
+    color: var(--black);
+    font-size: 15px;
+}
+
+.product-form-field textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.product-multiple-select {
+    min-height: 150px;
+}
+
+.product-input:focus,
+.product-form-field input:focus,
+.product-form-field select:focus,
+.product-form-field textarea:focus {
+    border-color: var(--lime);
+}
+
+.product-field-help {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.product-field-errors ul,
+.form-errors ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.product-field-errors,
+.form-errors {
+    padding: 10px 12px;
+    background: rgba(255, 139, 107, 0.08);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.product-current-image {
+    max-width: 280px;
+}
+
+.product-current-image p {
+    margin-bottom: 10px;
+    color: var(--text-soft);
+    font-size: 14px;
+}
+
+.product-current-image img {
+    border: 1px solid var(--line-soft);
+    background: #d9d9d9;
+}
+
+.product-form-actions,
+.product-delete-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.product-save-btn,
+.product-delete-btn,
+.product-cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.product-save-btn {
+    background: var(--lime);
+    border: 2px solid var(--lime);
+    color: var(--black);
+}
+
+.product-delete-btn {
+    background: transparent;
+    border: 2px solid var(--danger);
+    color: var(--danger);
+}
+
+.product-cancel-btn {
+    background: transparent;
+    border: 2px solid var(--line-soft);
+    color: var(--text-soft);
+}
+
+.product-cancel-btn:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+}
+
+.product-delete-warning {
+    margin-top: 12px;
+    color: var(--danger) !important;
+}
+
+.product-images-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.product-preview-image {
+    background: #d9d9d9;
+    border: 1px solid var(--line-soft);
+}
+
+.product-preview-image img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+@media (max-width: 760px) {
+    .product-edit-header {
+        flex-direction: column;
+    }
+
+    .product-edit-back {
+        width: 100%;
+    }
+
+    .product-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-edit-card,
+    .product-delete-card {
+        padding: 22px;
+    }
+
+    .product-edit-header h1,
+    .product-delete-card h1 {
+        font-size: 30px;
+    }
+
+    .product-save-btn,
+    .product-delete-btn,
+    .product-cancel-btn {
+        width: 100%;
     }
 }

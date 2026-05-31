@@ -1,9 +1,63 @@
 {% extends 'base.html' %}
+
+{% block title %}Изображения товара {{ product.name }}{% endblock %}
+
 {% block content %}
-<h2>Загрузить изображения для "{{ product.name }}"</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Загрузить</button>
-</form>
+<section class="product-edit-page">
+    <div class="container">
+        <div class="product-edit-card">
+            <div class="product-edit-header">
+                <div>
+                    <h1>Загрузка изображений</h1>
+                    <p>Добавьте дополнительные фотографии для товара «{{ product.name }}».</p>
+                </div>
+
+                <a href="{{ product.get_absolute_url }}" class="product-edit-back">
+                    Вернуться к товару
+                </a>
+            </div>
+
+            {% if product.images.all %}
+                <div class="product-images-preview">
+                    {% for image in product.images.all %}
+                        <div class="product-preview-image">
+                            <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="product-edit-form" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="product-form-field product-form-field-wide">
+                        {{ field.label_tag }}
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <p class="product-field-help">{{ field.help_text }}</p>
+                        {% endif %}
+
+                        {% if field.errors %}
+                            <div class="product-field-errors">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="product-form-actions">
+                    <button type="submit" class="product-save-btn">
+                        Загрузить изображения
+                    </button>
+
+                    <a href="{{ product.get_absolute_url }}" class="product-cancel-btn">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
 {% endblock %}

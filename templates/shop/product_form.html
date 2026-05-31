@@ -1,34 +1,220 @@
 {% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
 {% block content %}
-<h2>{{ title }}</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+<section class="product-edit-page">
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{% url 'home' %}">ГЛАВНАЯ</a>
+            <span>/</span>
+            <a href="{% url 'product_list' %}">КАТАЛОГ</a>
+            <span>/</span>
+            <span>{{ title|upper }}</span>
+        </div>
 
-    <div>
-        {{ form.name.label_tag }}
-        {{ form.name }}
+        <div class="product-edit-card">
+            <div class="product-edit-header">
+                <div>
+                    <h1>{{ title }}</h1>
+
+                    {% if product %}
+                        <p>
+                            Изменение данных товара «{{ product.name }}». После сохранения изменения сразу отобразятся в каталоге и карточке товара.
+                        </p>
+                    {% else %}
+                        <p>
+                            Создание нового товара для каталога UrbanWear. Заполните основные данные, цену, остаток и изображение.
+                        </p>
+                    {% endif %}
+                </div>
+
+                {% if product %}
+                    <a href="{{ product.get_absolute_url }}" class="product-edit-back">Вернуться к товару</a>
+                {% else %}
+                    <a href="{% url 'product_list' %}" class="product-edit-back">Вернуться в каталог</a>
+                {% endif %}
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="product-edit-form" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <fieldset class="product-form-section">
+                    <legend>Основная информация</legend>
+
+                    <div class="product-form-grid">
+                        <div class="product-form-field">
+                            {{ form.category.label_tag }}
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <div class="product-field-errors">{{ form.category.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.brand.label_tag }}
+                            {{ form.brand }}
+                            {% if form.brand.errors %}
+                                <div class="product-field-errors">{{ form.brand.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.name.label_tag }}
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="product-field-errors">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.sku.label_tag }}
+                            {{ form.sku }}
+                            {% if form.sku.errors %}
+                                <div class="product-field-errors">{{ form.sku.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.slug.label_tag }}
+                            {{ form.slug }}
+                            {% if form.slug.help_text %}
+                                <p class="product-field-help">{{ form.slug.help_text }}</p>
+                            {% endif %}
+                            {% if form.slug.errors %}
+                                <div class="product-field-errors">{{ form.slug.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="product-form-section">
+                    <legend>Цена и наличие</legend>
+
+                    <div class="product-form-grid">
+                        <div class="product-form-field">
+                            {{ form.price.label_tag }}
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                                <div class="product-field-errors">{{ form.price.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.discount.label_tag }}
+                            {{ form.discount }}
+                            {% if form.discount.errors %}
+                                <div class="product-field-errors">{{ form.discount.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.stock.label_tag }}
+                            {{ form.stock }}
+                            {% if form.stock.errors %}
+                                <div class="product-field-errors">{{ form.stock.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="product-form-section">
+                    <legend>Описание товара</legend>
+
+                    <div class="product-form-field product-form-field-wide">
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="product-field-errors">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+                </fieldset>
+
+                <fieldset class="product-form-section">
+                    <legend>Медиа и файлы</legend>
+
+                    <div class="product-form-grid">
+                        <div class="product-form-field">
+                            {{ form.main_image.label_tag }}
+                            {{ form.main_image }}
+                            {% if form.main_image.help_text %}
+                                <p class="product-field-help">{{ form.main_image.help_text }}</p>
+                            {% endif %}
+                            {% if form.main_image.errors %}
+                                <div class="product-field-errors">{{ form.main_image.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.video_url.label_tag }}
+                            {{ form.video_url }}
+                            {% if form.video_url.errors %}
+                                <div class="product-field-errors">{{ form.video_url.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.instruction.label_tag }}
+                            {{ form.instruction }}
+                            {% if form.instruction.errors %}
+                                <div class="product-field-errors">{{ form.instruction.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-form-field">
+                            {{ form.documentation.label_tag }}
+                            {{ form.documentation }}
+                            {% if form.documentation.errors %}
+                                <div class="product-field-errors">{{ form.documentation.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if product and product.main_image %}
+                        <div class="product-current-image">
+                            <p>Текущее главное изображение:</p>
+                            <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                        </div>
+                    {% endif %}
+                </fieldset>
+
+                <fieldset class="product-form-section">
+                    <legend>Рекомендации</legend>
+
+                    <div class="product-form-field product-form-field-wide">
+                        {{ form.recommended_products.label_tag }}
+                        {{ form.recommended_products }}
+                        {% if form.recommended_products.help_text %}
+                            <p class="product-field-help">{{ form.recommended_products.help_text }}</p>
+                        {% else %}
+                            <p class="product-field-help">
+                                Для выбора нескольких товаров удерживайте Ctrl на Windows или Command на macOS.
+                            </p>
+                        {% endif %}
+                        {% if form.recommended_products.errors %}
+                            <div class="product-field-errors">{{ form.recommended_products.errors }}</div>
+                        {% endif %}
+                    </div>
+                </fieldset>
+
+                <div class="product-form-actions">
+                    <button type="submit" class="product-save-btn">Сохранить изменения</button>
+
+                    {% if product %}
+                        <a href="{{ product.get_absolute_url }}" class="product-cancel-btn">Отмена</a>
+                        <a href="{% url 'product_delete' product.slug %}" class="product-delete-link">Удалить товар</a>
+                    {% else %}
+                        <a href="{% url 'product_list' %}" class="product-cancel-btn">Отмена</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div>
-        {{ form.description.label_tag }}
-        {{ form.description }}
-    </div>
-
-    <div>
-        {{ form.price.label_tag }}
-        {{ form.price }}
-    </div>
-    <div>
-    {{ form.slug.label_tag }}
-    {{ form.slug }}
-
-    {% if form.slug.help_text %}
-        <small style="color: gray;">
-            {{ form.slug.help_text }}
-        </small>
-    {% endif %}
-</div>
-
-    <button type="submit">Сохранить</button>
-</form>
+</section>
 {% endblock %}
