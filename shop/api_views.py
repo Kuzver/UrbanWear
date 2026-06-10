@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from .filters import ProductFilter
 from django.db.models import Avg, Count, Sum, Value, IntegerField, FloatField
 from django.db.models.functions import Coalesce
+from .models import Brand, Category, Order, Product, PromoCode, Review, Size, Wishlist
 
 from .models import (
     Brand,
@@ -95,7 +96,16 @@ class ProductViewSet(viewsets.ModelViewSet):
     lookup_field = "slug"
     filterset_class = ProductFilter
     search_fields = ["name", "description", "sku", "category__name", "brand__name"]
-    ordering_fields = ["price", "name", "created_at", "stock", "discount"]
+    ordering_fields = [
+        "price",
+        "name",
+        "created_at",
+        "stock",
+        "discount",
+        "avg_rating",
+        "sold_count",
+        "wishlist_count",
+    ]
     ordering = ["-created_at"]
 
     def get_queryset(self):
@@ -146,6 +156,29 @@ class ProductViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return ProductListSerializer
         return ProductDetailSerializer
+
+    def get_serializer_context(self):
+        """
+        Передает в сериализатор список товаров, добавленных в избранное
+        текущим пользователем.
+
+        Это нужно для поля is_favorite в ProductListSerializer
+        и ProductDetailSerializer.
+        """
+        context = super().get_serializer_context()
+        user = self.request.user
+
+        if user.is_authenticated:
+            favorite_products = set(
+                Wishlist.objects
+                .filter(user=user)
+                .values_list("product_id", flat=True)
+            )
+        else:
+            favorite_products = set()
+
+        context["favorite_products"] = favorite_products
+        return context
 
     @action(detail=True, methods=["get"], permission_classes=[permissions.AllowAny])
     def reviews(self, request, slug=None):

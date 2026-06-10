@@ -66,42 +66,48 @@ class ProductVariantSerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    brand = BrandSerializer(read_only=True)
+    discounted_price = serializers.SerializerMethodField()
     avg_rating = serializers.FloatField(read_only=True)
     sold_count = serializers.IntegerField(read_only=True)
     wishlist_count = serializers.IntegerField(read_only=True)
-    discounted_price = serializers.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        read_only=True,
-        source='get_discounted_price',
-    )
+    is_favorite = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
-        fields = (
-            'id',
-            'name',
-            'slug',
-            'sku',
-            'category',
-            'brand',
-            'price',
-            'discount',
-            'discounted_price',
-            'stock',
-            'main_image',
-            'created_at',
-            'updated_at',
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "sku",
+            "category",
+            "brand",
+            "price",
+            "discount",
+            "discounted_price",
+            "stock",
+            "main_image",
+            "created_at",
+            "updated_at",
             "avg_rating",
             "sold_count",
             "wishlist_count",
-        )
+            "is_favorite",
+        ]
+
+    def get_discounted_price(self, obj):
+        return obj.get_discounted_price()
+
+    def get_is_favorite(self, obj):
+        """
+        Проверяет, находится ли товар в избранном у текущего пользователя.
+        """
+        favorite_products = self.context.get("favorite_products", set())
+        return obj.id in favorite_products
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
+    is_favorite = serializers.SerializerMethodField()
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source='category',
@@ -156,8 +162,16 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'reviews_count',
             'created_at',
             'updated_at',
+            "is_favorite",
         )
         read_only_fields = ('created_at', 'updated_at', 'slug')
+
+    def get_is_favorite(self, obj):
+        """
+        Проверяет, находится ли товар в избранном у текущего пользователя.
+        """
+        favorite_products = self.context.get("favorite_products", set())
+        return obj.id in favorite_products
 
     def validate_discount(self, value):
         if value > 100:
