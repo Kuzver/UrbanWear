@@ -60,6 +60,18 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         required=False,
     )
 
+    def validate_stock(self, value):
+        """
+        Проверяет остаток товара по конкретному размеру.
+
+        Остаток не может быть отрицательным.
+        """
+        if value < 0:
+            raise serializers.ValidationError(
+                "Остаток по размеру не может быть отрицательным."
+            )
+        return value
+
     class Meta:
         model = ProductVariant
         fields = ('id', 'product', 'size', 'size_id', 'stock')
@@ -166,6 +178,40 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('created_at', 'updated_at', 'slug')
 
+    def validate(self, attrs):
+        """
+        Проверяет бизнес-правила для товара.
+
+        Реализованные проверки:
+        - цена товара не может быть нулевой или отрицательной;
+        - скидка должна быть в диапазоне от 0 до 100 процентов;
+        - общий остаток товара не может быть отрицательным;
+        - артикул не может быть пустым.
+        """
+        price = attrs.get("price", getattr(self.instance, "price", None))
+        discount = attrs.get("discount", getattr(self.instance, "discount", 0))
+        stock = attrs.get("stock", getattr(self.instance, "stock", 0))
+        sku = attrs.get("sku", getattr(self.instance, "sku", ""))
+
+        errors = {}
+
+        if price is not None and price <= 0:
+            errors["price"] = "Цена товара должна быть больше 0."
+
+        if discount is not None and (discount < 0 or discount > 100):
+            errors["discount"] = "Скидка должна быть в диапазоне от 0 до 100 процентов."
+
+        if stock is not None and stock < 0:
+            errors["stock"] = "Остаток товара не может быть отрицательным."
+
+        if sku is not None and not str(sku).strip():
+            errors["sku"] = "Артикул товара не может быть пустым."
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return attrs
+
     def get_is_favorite(self, obj):
         """
         Проверяет, находится ли товар в избранном у текущего пользователя.
@@ -198,6 +244,42 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Оценка должна быть от 1 до 5.')
         return value
 
+    def validate_rating(self, value):
+        """
+        Проверяет оценку отзыва.
+
+        Оценка должна быть от 1 до 5.
+        """
+        if value < 1 or value > 5:
+            raise serializers.ValidationError(
+                "Оценка должна быть в диапазоне от 1 до 5."
+            )
+        return value
+
+    def validate(self, attrs):
+        """
+        Проверяет бизнес-правила добавления отзыва.
+
+        Один пользователь не может оставить несколько отзывов
+        на один и тот же товар.
+        """
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+
+        product = attrs.get("product")
+
+        if self.instance is None and user and user.is_authenticated and product:
+            review_exists = Review.objects.filter(
+                user=user,
+                product=product,
+            ).exists()
+
+            if review_exists:
+                raise serializers.ValidationError(
+                    "Вы уже оставляли отзыв на этот товар."
+                )
+
+        return attrs
 
 class WishlistSerializer(serializers.ModelSerializer):
     user = UserShortSerializer(read_only=True)
@@ -222,6 +304,37 @@ class OrderItemSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Количество должно быть не меньше 1.')
         return value
 
+    def validate_quantity(self, value):
+        """
+        Проверяет количество товара в позиции заказа.
+        """
+        if value <= 0:
+            raise serializers.ValidationError(
+                "Количество товара должно быть больше 0."
+            )
+        return value
+
+    def validate(self, attrs):
+        """
+        Проверяет наличие товара на складе.
+
+        Нельзя заказать больше товара, чем есть в наличии.
+        """
+        product = attrs.get("product", getattr(self.instance, "product", None))
+        quantity = attrs.get("quantity", getattr(self.instance, "quantity", None))
+
+        if product and quantity and quantity > product.stock:
+            raise serializers.ValidationError(
+                {
+                    "quantity": (
+                        f"Недостаточно товара на складе. "
+                        f"Доступно: {product.stock}."
+                    )
+                }
+            )
+
+        return attrs
+
 
 class OrderSerializer(serializers.ModelSerializer):
     user = UserShortSerializer(read_only=True)
@@ -243,6 +356,40 @@ class OrderSerializer(serializers.ModelSerializer):
             'updated_at',
         )
         read_only_fields = ('user', 'total_amount', 'created_at', 'updated_at')
+
+    def validate_total_amount(self, value):
+        """
+        Проверяет сумму заказа.
+
+        Сумма заказа должна быть положительной и не должна превышать
+        установленный лимит.
+        """
+        if value <= 0:
+            raise serializers.ValidationError(
+                "Сумма заказа должна быть больше 0."
+            )
+
+        if value > 100000:
+            raise serializers.ValidationError(
+                "Сумма заказа не может быть больше 100 000 рублей."
+            )
+
+        return value
+
+    def validate_address(self, value):
+        """
+        Проверяет адрес доставки.
+
+        Адрес должен содержать минимум 10 символов.
+        Для учебного проекта этого достаточно, чтобы показать
+        базовую валидацию формата адреса.
+        """
+        if not value or len(value.strip()) < 10:
+            raise serializers.ValidationError(
+                "Адрес доставки должен содержать не менее 10 символов."
+            )
+
+        return value
 
 
 class PromoCodeSerializer(serializers.ModelSerializer):
