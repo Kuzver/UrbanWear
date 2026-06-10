@@ -7,6 +7,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .filters import ProductFilter
+from django.db.models import Avg, Count, Sum, Value, IntegerField, FloatField
+from django.db.models.functions import Coalesce
 
 from .models import (
     Brand,
@@ -100,9 +102,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         """
         Возвращает оптимизированный QuerySet товаров.
 
-        Здесь специально оставлена только базовая выборка.
-        Фильтрация по цене, категории, бренду, размеру, скидке и наличию
-        вынесена в ProductFilter из файла shop/filters.py.
+        В QuerySet добавлены аннотированные поля:
+        - avg_rating: средний рейтинг товара;
+        - sold_count: количество проданных единиц товара;
+        - wishlist_count: сколько раз товар добавили в избранное.
+
+        Важно:
+        в текущих моделях проекта обратная связь OrderItem -> Product называется orderitem,
+        а обратная связь Wishlist -> Product называется wishlisted_by.
         """
         return (
             Product.objects
@@ -112,8 +119,22 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "variants__size",
                 "recommended_products",
                 "reviews",
+                "wishlisted_by",
             )
             .exclude(price=0)
+            .annotate(
+                avg_rating=Coalesce(
+                    Avg("reviews__rating"),
+                    Value(0.0),
+                    output_field=FloatField(),
+                ),
+                sold_count=Coalesce(
+                    Sum("orderitem__quantity"),
+                    Value(0),
+                    output_field=IntegerField(),
+                ),
+                wishlist_count=Count("wishlisted_by", distinct=True),
+            )
             .distinct()
         )
 
