@@ -1,0 +1,557 @@
+{
+  "info": {
+    "name": "UrbanWear API",
+    "description": "Postman-коллекция для тестирования REST API интернет-магазина UrbanWear. Включает товары, категории, бренды, размеры, отзывы, заказы, избранное и корзину.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "username",
+      "value": "admin"
+    },
+    {
+      "key": "password",
+      "value": "admin"
+    },
+    {
+      "key": "product_id",
+      "value": "70"
+    },
+    {
+      "key": "product_slug",
+      "value": "319"
+    },
+    {
+      "key": "category_slug",
+      "value": "product-true-while"
+    },
+    {
+      "key": "brand_slug",
+      "value": "urban-core"
+    }
+  ],
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "GET product list",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ""]
+            },
+            "description": "Получение списка товаров с пагинацией."
+          }
+        },
+        {
+          "name": "GET product detail by slug",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/{{product_slug}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{product_slug}}", ""]
+            },
+            "description": "Получение детальной карточки товара по slug."
+          }
+        },
+        {
+          "name": "GET products by price range",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/?min_price=1000&max_price=5000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ""],
+              "query": [
+                {
+                  "key": "min_price",
+                  "value": "1000"
+                },
+                {
+                  "key": "max_price",
+                  "value": "5000"
+                }
+              ]
+            },
+            "description": "Фильтрация товаров по минимальной и максимальной цене."
+          }
+        },
+        {
+          "name": "GET products by category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/?category={{category_slug}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ""],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "{{category_slug}}"
+                }
+              ]
+            },
+            "description": "Фильтрация товаров по категории."
+          }
+        },
+        {
+          "name": "GET products by brand",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/?brand={{brand_slug}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ""],
+              "query": [
+                {
+                  "key": "brand",
+                  "value": "{{brand_slug}}"
+                }
+              ]
+            },
+            "description": "Фильтрация товаров по бренду."
+          }
+        },
+        {
+          "name": "GET discounted products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/?discount=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ""],
+              "query": [
+                {
+                  "key": "discount",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Фильтрация товаров со скидкой."
+          }
+        },
+        {
+          "name": "GET products in stock",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/?in_stock=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ""],
+              "query": [
+                {
+                  "key": "in_stock",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Фильтрация товаров, которые есть в наличии."
+          }
+        },
+        {
+          "name": "GET products ordered by rating",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/?ordering=-avg_rating",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", ""],
+              "query": [
+                {
+                  "key": "ordering",
+                  "value": "-avg_rating"
+                }
+              ]
+            },
+            "description": "Сортировка товаров по аннотированному полю среднего рейтинга."
+          }
+        },
+        {
+          "name": "GET product reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/products/{{product_slug}}/reviews/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "{{product_slug}}", "reviews", ""]
+            },
+            "description": "Получение отзывов конкретного товара."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Catalog directories",
+      "item": [
+        {
+          "name": "GET categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/categories/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "categories", ""]
+            },
+            "description": "Получение списка категорий."
+          }
+        },
+        {
+          "name": "GET brands",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/brands/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "brands", ""]
+            },
+            "description": "Получение списка брендов."
+          }
+        },
+        {
+          "name": "GET sizes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sizes/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "sizes", ""]
+            },
+            "description": "Получение списка размеров."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "GET reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/reviews/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", ""]
+            },
+            "description": "Получение списка отзывов."
+          }
+        },
+        {
+          "name": "POST create review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {{product_id}},\n  \"rating\": 5,\n  \"comment\": \"Отличный товар, качество соответствует описанию.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", ""]
+            },
+            "description": "Создание отзыва. Проверяет валидацию рейтинга и запрет повторного отзыва."
+          }
+        },
+        {
+          "name": "POST invalid review rating",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {{product_id}},\n  \"rating\": 6,\n  \"comment\": \"Некорректная оценка.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", ""]
+            },
+            "description": "Негативный тест: рейтинг должен быть от 1 до 5."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "GET orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/orders/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", ""]
+            },
+            "description": "Получение заказов пользователя. Администратор видит все заказы."
+          }
+        },
+        {
+          "name": "POST create order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_address\": \"Москва, улица Тестовая, дом 1\",\n  \"city\": \"Москва\",\n  \"postal_code\": \"123456\",\n  \"contact_phone\": \"+79990000000\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", ""]
+            },
+            "description": "Создание заказа. Проверяет адрес доставки и контактные данные."
+          }
+        },
+        {
+          "name": "POST invalid order address",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_address\": \"дом\",\n  \"city\": \"Москва\",\n  \"postal_code\": \"123456\",\n  \"contact_phone\": \"+79990000000\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", ""]
+            },
+            "description": "Негативный тест: слишком короткий адрес доставки."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "GET wishlist",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/wishlist/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist", ""]
+            },
+            "description": "Получение избранных товаров пользователя."
+          }
+        },
+        {
+          "name": "POST add to wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {{product_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/wishlist/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wishlist", ""]
+            },
+            "description": "Добавление товара в избранное."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "GET cart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/cart/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", ""]
+            },
+            "description": "Получение текущей корзины из сессии."
+          }
+        },
+        {
+          "name": "POST add product to cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/add/{{product_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "add", "{{product_id}}", ""]
+            },
+            "description": "Добавление товара в корзину с проверкой остатка."
+          }
+        },
+        {
+          "name": "POST invalid cart quantity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": -1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/add/{{product_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "add", "{{product_id}}", ""]
+            },
+            "description": "Негативный тест: нельзя добавить отрицательное количество товара."
+          }
+        },
+        {
+          "name": "PATCH update cart item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/cart/update/{{product_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "update", "{{product_id}}", ""]
+            },
+            "description": "Обновление количества товара в корзине."
+          }
+        },
+        {
+          "name": "DELETE remove product from cart",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/cart/remove/{{product_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", "remove", "{{product_id}}", ""]
+            },
+            "description": "Удаление товара из корзины."
+          }
+        },
+        {
+          "name": "DELETE clear cart",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/api/cart/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cart", ""]
+            },
+            "description": "Полная очистка корзины."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service",
+      "item": [
+        {
+          "name": "GET API auth login",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api-auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api-auth", "login", ""]
+            },
+            "description": "Страница входа DRF Browsable API."
+          }
+        },
+        {
+          "name": "GET Silk",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/silk/",
+              "host": ["{{base_url}}"],
+              "path": ["silk", ""]
+            },
+            "description": "Django Silk для профилирования запросов."
+          }
+        },
+        {
+          "name": "GET OAuth2 accounts login",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/accounts/login/",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "login", ""]
+            },
+            "description": "Страница авторизации django-allauth/OAuth2."
+          }
+        }
+      ]
+    }
+  ]
+}
