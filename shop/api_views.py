@@ -10,6 +10,12 @@ from .filters import ProductFilter
 from django.db.models import Avg, Count, Sum, Value, IntegerField, FloatField
 from django.db.models.functions import Coalesce
 from .models import Brand, Category, Order, Product, PromoCode, Review, Size, Wishlist
+from decimal import Decimal
+from typing import Any
+
+from django.shortcuts import get_object_or_404
+from rest_framework.request import Request
+from rest_framework.views import APIView
 
 from .models import (
     Brand,
@@ -256,23 +262,84 @@ class PromoCodeViewSet(viewsets.ModelViewSet):
 
 
 class CartMixin:
-    def get_cart(self, request):
-        return request.session.get('cart', {})
+    """
+    Общая логика работы с корзиной в сессии Django.
 
-    def save_cart(self, request, cart):
-        request.session['cart'] = cart
+    Корзина хранится в request.session в виде словаря:
+        {
+            "product_id": quantity
+        }
+    """
+
+    MAX_ITEM_QUANTITY = 99
+
+    def get_cart(self, request: Request) -> dict[str, int]:
+        """
+        Возвращает корзину из пользовательской сессии.
+        """
+        return request.session.get("cart", {})
+
+    def save_cart(self, request: Request, cart: dict[str, int]) -> None:
+        """
+        Сохраняет корзину в пользовательскую сессию.
+        """
+        request.session["cart"] = cart
         request.session.modified = True
 
-    def build_cart_data(self, request):
+    def validate_quantity(self, quantity: int) -> None:
+        """
+        Проверяет корректность количества товара.
+
+        Количество не может быть отрицательным.
+        Также установлен технический лимит, чтобы пользователь
+        не мог добавить нереалистично большое количество товара.
+        """
+        if quantity < 0:
+            raise ValueError("Количество товара не может быть отрицательным.")
+
+        if quantity > self.MAX_ITEM_QUANTITY:
+            raise ValueError(
+                f"Нельзя добавить больше {self.MAX_ITEM_QUANTITY} единиц одного товара."
+            )
+
+    def validate_product_available(self, product: Product, quantity: int) -> None:
+        """
+        Проверяет доступность товара для добавления в корзину.
+
+        Проверки:
+        - товар должен иметь положительную цену;
+        - товар должен быть в наличии;
+        - запрошенное количество не должно превышать складской остаток.
+        """
+        if product.price <= 0:
+            raise ValueError("Товар с некорректной ценой нельзя добавить в корзину.")
+
+        if product.stock <= 0:
+            raise ValueError("Товара нет в наличии.")
+
+        if quantity > product.stock:
+            raise ValueError(
+                f"Недостаточно товара на складе. Доступно: {product.stock}."
+            )
+
+    def build_cart_data(self, request: Request) -> dict[str, Any]:
+        """
+        Формирует структуру корзины с товарами, количеством и итоговыми суммами.
+        """
         cart = self.get_cart(request)
-        products = Product.objects.select_related('category', 'brand').filter(id__in=cart.keys())
+        products = (
+            Product.objects
+            .select_related("category", "brand")
+            .filter(id__in=cart.keys())
+        )
 
         items = []
-        subtotal = Decimal('0')
-        discount_total = Decimal('0')
+        subtotal = Decimal("0")
+        discount_total = Decimal("0")
 
         for product in products:
             quantity = int(cart.get(str(product.id), 1))
+
             old_price = product.price * quantity
             unit_price = product.get_discounted_price()
             line_total = unit_price * quantity
@@ -280,63 +347,148 @@ class CartMixin:
             subtotal += old_price
             discount_total += old_price - line_total
 
-            items.append({
-                'product': product,
-                'quantity': quantity,
-                'unit_price': unit_price,
-                'line_total': line_total,
-            })
+            items.append(
+                {
+                    "product": product,
+                    "quantity": quantity,
+                    "unit_price": unit_price,
+                    "line_total": line_total,
+                }
+            )
 
-        delivery = Decimal('0')
+        delivery = Decimal("0")
         total = subtotal - discount_total + delivery
 
         return {
-            'items': items,
-            'subtotal': subtotal,
-            'discount_total': discount_total,
-            'delivery': delivery,
-            'total': total,
+            "items": items,
+            "subtotal": subtotal,
+            "discount_total": discount_total,
+            "delivery": delivery,
+            "total": total,
         }
 
-    def cart_response(self, request, status_code=status.HTTP_200_OK):
-        serializer = CartSerializer(self.build_cart_data(request), context={'request': request})
+    def cart_response(
+        self,
+        request: Request,
+        status_code: int = status.HTTP_200_OK,
+    ) -> Response:
+        """
+        Возвращает сериализованный ответ корзины.
+        """
+        serializer = CartSerializer(
+            self.build_cart_data(request),
+            context={"request": request},
+        )
         return Response(serializer.data, status=status_code)
 
 
 class CartView(CartMixin, APIView):
+    """
+    API для просмотра и очистки корзины.
+    """
+
     permission_classes = (permissions.AllowAny,)
 
-    def get(self, request):
+    def get(self, request: Request) -> Response:
+        """
+        Возвращает текущую корзину.
+        """
         return self.cart_response(request)
 
-    def delete(self, request):
+    def delete(self, request: Request) -> Response:
+        """
+        Полностью очищает корзину.
+        """
         self.save_cart(request, {})
         return self.cart_response(request)
 
 
 class CartAddView(CartMixin, APIView):
+    """
+    API для добавления товара в корзину.
+    """
+
     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request, product_id):
+    def post(self, request: Request, product_id: int) -> Response:
+        """
+        Добавляет товар в корзину.
+
+        Поддерживает два варианта:
+        - если quantity не передан, добавляет 1 товар;
+        - если quantity передан, добавляет указанное количество.
+        """
         product = get_object_or_404(Product, id=product_id)
         cart = self.get_cart(request)
         product_id_str = str(product.id)
-        cart[product_id_str] = int(cart.get(product_id_str, 0)) + 1
+
+        try:
+            quantity_to_add = int(request.data.get("quantity", 1))
+        except (TypeError, ValueError):
+            return Response(
+                {"quantity": "Количество должно быть целым числом."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if quantity_to_add <= 0:
+            return Response(
+                {"quantity": "Количество для добавления должно быть больше 0."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        current_quantity = int(cart.get(product_id_str, 0))
+        new_quantity = current_quantity + quantity_to_add
+
+        try:
+            self.validate_quantity(new_quantity)
+            self.validate_product_available(product, new_quantity)
+        except ValueError as error:
+            return Response(
+                {"detail": str(error)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cart[product_id_str] = new_quantity
         self.save_cart(request, cart)
+
         return self.cart_response(request, status.HTTP_201_CREATED)
 
 
 class CartUpdateView(CartMixin, APIView):
+    """
+    API для изменения количества товара в корзине.
+    """
+
     permission_classes = (permissions.AllowAny,)
 
-    def patch(self, request, product_id):
+    def patch(self, request: Request, product_id: int) -> Response:
+        """
+        Обновляет количество товара в корзине.
+
+        Если quantity = 0, товар удаляется из корзины.
+        """
+        product = get_object_or_404(Product, id=product_id)
         cart = self.get_cart(request)
-        product_id_str = str(product_id)
+        product_id_str = str(product.id)
 
         try:
-            quantity = int(request.data.get('quantity', 1))
+            quantity = int(request.data.get("quantity", 1))
         except (TypeError, ValueError):
-            return Response({'quantity': 'Количество должно быть целым числом.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"quantity": "Количество должно быть целым числом."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            self.validate_quantity(quantity)
+
+            if quantity > 0:
+                self.validate_product_available(product, quantity)
+        except ValueError as error:
+            return Response(
+                {"detail": str(error)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if quantity > 0:
             cart[product_id_str] = quantity
@@ -344,14 +496,23 @@ class CartUpdateView(CartMixin, APIView):
             cart.pop(product_id_str, None)
 
         self.save_cart(request, cart)
+
         return self.cart_response(request)
 
 
 class CartRemoveView(CartMixin, APIView):
+    """
+    API для удаления товара из корзины.
+    """
+
     permission_classes = (permissions.AllowAny,)
 
-    def delete(self, request, product_id):
+    def delete(self, request: Request, product_id: int) -> Response:
+        """
+        Удаляет товар из корзины.
+        """
         cart = self.get_cart(request)
         cart.pop(str(product_id), None)
         self.save_cart(request, cart)
+
         return self.cart_response(request)
