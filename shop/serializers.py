@@ -232,23 +232,18 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = UserShortSerializer(read_only=True)
-    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    user_id = serializers.IntegerField(source="user.id", read_only=True)
 
     class Meta:
         model = Review
-        fields = ('id', 'product', 'user', 'user_id', 'rating', 'comment', 'created_at')
-        read_only_fields = ('user', 'user_id', 'created_at')
-
-    def validate_rating(self, value):
-        if not 1 <= value <= 5:
-            raise serializers.ValidationError('Оценка должна быть от 1 до 5.')
-        return value
+        fields = ("id", "product", "user", "user_id", "rating", "comment", "created_at")
+        read_only_fields = ("user", "user_id", "created_at")
 
     def validate_rating(self, value):
         """
         Проверяет оценку отзыва.
 
-        Оценка должна быть от 1 до 5.
+        Оценка должна быть в диапазоне от 1 до 5.
         """
         if value < 1 or value > 5:
             raise serializers.ValidationError(
@@ -265,7 +260,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         """
         request = self.context.get("request")
         user = getattr(request, "user", None)
-
         product = attrs.get("product")
 
         if self.instance is None and user and user.is_authenticated and product:
@@ -376,7 +370,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate_address(self, value):
+    def validate_delivery_address(self, value):
         """
         Проверяет адрес доставки.
 
