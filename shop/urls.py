@@ -1,11 +1,28 @@
-from django.urls import path
-from . import views
-from django.urls import path, include
-from . import views
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+
+from . import api_views, views
+
+router = DefaultRouter()
+router.register(r'categories', api_views.CategoryViewSet, basename='api-category')
+router.register(r'brands', api_views.BrandViewSet, basename='api-brand')
+router.register(r'sizes', api_views.SizeViewSet, basename='api-size')
+router.register(r'products', api_views.ProductViewSet, basename='api-product')
+router.register(r'product-images', api_views.ProductImageViewSet, basename='api-product-image')
+router.register(r'product-variants', api_views.ProductVariantViewSet, basename='api-product-variant')
+router.register(r'reviews', api_views.ReviewViewSet, basename='api-review')
+router.register(r'wishlist', api_views.WishlistViewSet, basename='api-wishlist')
+router.register(r'orders', api_views.OrderViewSet, basename='api-order')
+router.register(r'promo-codes', api_views.PromoCodeViewSet, basename='api-promo-code')
 
 urlpatterns = [
-    path('', views.home, name='home'),  # ← ГЛАВНАЯ должна быть первой
+    path('api/', include(router.urls)),
+    path('api/cart/', api_views.CartView.as_view(), name='api-cart'),
+    path('api/cart/add/<int:product_id>/', api_views.CartAddView.as_view(), name='api-cart-add'),
+    path('api/cart/update/<int:product_id>/', api_views.CartUpdateView.as_view(), name='api-cart-update'),
+    path('api/cart/remove/<int:product_id>/', api_views.CartRemoveView.as_view(), name='api-cart-remove'),
 
+    path('', views.home, name='home'),
     path('products/', views.product_list, name='product_list'),
     path('product/<slug:slug>/', views.product_detail, name='product_detail'),
     path('product/<slug:product_slug>/add_review/', views.add_review, name='add_review'),
